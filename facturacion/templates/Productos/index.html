@@ -1,0 +1,514 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+  
+  <!-- ===== HEADER CON ESTADÍSTICAS ===== -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 z-index-2">
+          <div class="bg-gradient-primary border-radius-lg pt-4 pb-3 d-flex align-items-center justify-content-between px-3">
+            <div class="d-flex align-items-center">
+              <i class="fas fa-boxes text-white me-3" style="font-size: 1.5rem;"></i>
+              <h6 class="text-white text-uppercase m-0">Inventario de Productos</h6>
+              <span class="badge bg-white text-primary ms-3">{{ productos|length }}</span>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-white btn-sm mb-0" type="button" data-bs-toggle="modal" data-bs-target="#modalProducto">
+                <i class="fas fa-plus me-2"></i>Nuevo Producto
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== ESTADÍSTICAS RÁPIDAS ===== -->
+        <div class="row px-3 pt-3">
+          <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-0 bg-gradient-primary shadow-sm">
+              <div class="card-body p-3">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <span class="text-white opacity-8 text-sm">Total Productos</span>
+                    <h4 class="text-white mb-0">{{ productos|length }}</h4>
+                  </div>
+                  <div class="icon icon-shape bg-white shadow text-center border-radius-md d-flex align-items-center justify-content-center">
+                    <i class="fas fa-cubes text-primary"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-0 bg-gradient-success shadow-sm">
+              <div class="card-body p-3">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <span class="text-white opacity-8 text-sm">Productos Activos</span>
+                    <h4 class="text-white mb-0">{{ productos_activos|default:"0" }}</h4>
+                  </div>
+                  <div class="icon icon-shape bg-white shadow text-center border-radius-md d-flex align-items-center justify-content-center">
+                    <i class="fas fa-check-circle text-success"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-0 bg-gradient-warning shadow-sm">
+              <div class="card-body p-3">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <span class="text-white opacity-8 text-sm">Stock Bajo</span>
+                    <h4 class="text-white mb-0">{{ productos_stock_bajo|default:"0" }}</h4>
+                  </div>
+                  <div class="icon icon-shape bg-white shadow text-center border-radius-md d-flex align-items-center justify-content-center">
+                    <i class="fas fa-exclamation-triangle text-warning"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-0 bg-gradient-info shadow-sm">
+              <div class="card-body p-3">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <span class="text-white opacity-8 text-sm">Categorías</span>
+                    <h4 class="text-white mb-0">{{ total_categorias|default:"0" }}</h4>
+                  </div>
+                  <div class="icon icon-shape bg-white shadow text-center border-radius-md d-flex align-items-center justify-content-center">
+                    <i class="fas fa-tags text-info"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== FILTROS Y BÚSQUEDA ===== -->
+        <div class="card-body px-3 pb-0">
+          <div class="row align-items-center">
+            <div class="col-md-4">
+              <div class="input-group input-group-outline">
+                <span class="input-group-text bg-white border-end-0">
+                  <i class="fas fa-search text-secondary"></i>
+                </span>
+                <input type="text" class="form-control border-start-0" id="buscarProducto" placeholder="Buscar producto...">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <select class="form-select" id="filtroCategoria">
+                <option value="">Todas las categorías</option>
+                {% for categoria in categorias %}
+                  <option value="{{ categoria.nombre }}">{{ categoria.nombre }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-3">
+              <select class="form-select" id="filtroEstado">
+                <option value="">Todos los estados</option>
+                <option value="activo">Activos</option>
+                <option value="inactivo">Inactivos</option>
+              </select>
+            </div>
+            <div class="col-md-2 text-end">
+              <button class="btn btn-outline-primary btn-sm w-100" id="limpiarFiltros">
+                <i class="fas fa-undo me-1"></i>Limpiar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== GRID DE PRODUCTOS ===== -->
+        <div class="card-body px-0 pb-2">
+          <div class="container-fluid py-2">
+            <div class="row" id="gridProductos">
+              {% for producto in productos %}
+              <div class="col-xl-3 col-md-6 col-sm-12 mb-4 producto-item" 
+                   data-nombre="{{ producto.nombre|lower }}" 
+                   data-categoria="{{ producto.categoria.nombre }}"
+                   data-estado="{% if producto.activo %}activo{% else %}inactivo{% endif %}">
+                
+                <div class="card h-100 border-0 shadow-sm hover-card overflow-hidden">
+                  
+                  <!-- ===== IMAGEN CON OVERLAY ===== -->
+                  <div class="card-header p-0 position-relative">
+                    {% if producto.imagen %}
+                      <img src="{{ producto.imagen.url }}" class="img-fluid w-100" alt="{{ producto.nombre }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                      <div class="bg-gradient-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                        <i class="fas fa-image text-secondary" style="font-size: 4rem;"></i>
+                      </div>
+                    {% endif %}
+                    
+                    <!-- ===== BADGE DE STOCK BAJO ===== -->
+                    {% if producto.stock <= producto.stock_minimo %}
+                      <span class="badge bg-danger position-absolute top-0 end-0 m-3">
+                        <i class="fas fa-exclamation-triangle me-1"></i>Stock Bajo
+                      </span>
+                    {% endif %}
+                    
+                    <!-- ===== BADGE DE ESTADO ===== -->
+                    {% if producto.activo %}
+                      <span class="badge bg-success position-absolute bottom-0 start-0 m-3">
+                        <i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i>Activo
+                      </span>
+                    {% else %}
+                      <span class="badge bg-secondary position-absolute bottom-0 start-0 m-3">
+                        <i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i>Inactivo
+                      </span>
+                    {% endif %}
+                  </div>
+
+                  <!-- ===== CUERPO DEL PRODUCTO ===== -->
+                  <div class="card-body d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start">
+                      <span class="badge bg-gradient-primary mb-1">{{ producto.categoria.nombre }}</span>
+                      <span class="text-xs text-secondary">
+                        <i class="fas fa-hashtag me-1"></i>ID: {{ producto.id }}
+                      </span>
+                    </div>
+                    
+                    <h5 class="card-title font-weight-bolder mt-1 mb-2">{{ producto.nombre }}</h5>
+                    
+                    <div class="mt-auto">
+                      <hr class="my-2 opacity-2">
+                      
+                      <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-sm text-secondary">
+                          <i class="fas fa-tag text-success me-1"></i>Precio Venta:
+                        </span>
+                        <span class="font-weight-bolder text-success">${{ producto.precio_venta }}</span>
+                      </div>
+                      
+                      <div class="d-flex justify-content-between align-items-center mt-1">
+                        <span class="text-sm text-secondary">
+                          <i class="fas fa-box text-primary me-1"></i>Stock:
+                        </span>
+                        {% if producto.stock <= producto.stock_minimo %}
+                          <span class="badge bg-gradient-danger">{{ producto.stock }}</span>
+                        {% else %}
+                          <span class="font-weight-bold text-sm">{{ producto.stock }}</span>
+                        {% endif %}
+                      </div>
+                      
+                      <div class="d-flex justify-content-between align-items-center mt-1">
+                        <span class="text-sm text-secondary">
+                          <i class="fas fa-arrow-down text-warning me-1"></i>Stock Mínimo:
+                        </span>
+                        <span class="font-weight-bold text-sm">{{ producto.stock_minimo }}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- ===== FOOTER CON ACCIONES ===== -->
+                  <div class="card-footer bg-transparent border-0 d-flex gap-2 pt-0">
+                    <button class="btn btn-outline-primary btn-sm flex-grow-1" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#EditarProductoModal{{ producto.id }}">
+                      <i class="fas fa-edit me-1"></i>Editar
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm" 
+                            title="Eliminar producto"
+                            onclick="confirmarEliminar('{{ producto.id }}', '{{ producto.nombre }}')">
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ===== MODAL EDITAR ===== -->
+              {% include 'modales/editar_producto.html' %}
+
+              {% empty %}
+              <div class="col-12 text-center py-5">
+                <i class="fas fa-box-open text-secondary" style="font-size: 4rem;"></i>
+                <h4 class="text-secondary mt-3">No hay productos que mostrar</h4>
+                <p class="text-muted">Haz clic en "Nuevo Producto" para comenzar</p>
+                <button class="btn bg-gradient-primary mt-2" data-bs-toggle="modal" data-bs-target="#modalProducto">
+                  <i class="fas fa-plus me-2"></i>Nuevo Producto
+                </button>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== PAGINACIÓN ===== -->
+        <div class="card-footer px-3 border-0">
+          <div class="row align-items-center">
+            <div class="col-md-6">
+              <p class="text-sm text-secondary mb-0">
+                Mostrando <span id="mostrandoInicio">1</span> - <span id="mostrandoFin">{{ productos|length }}</span> de <span id="totalRegistros">{{ productos|length }}</span> productos
+              </p>
+            </div>
+            <div class="col-md-6">
+              <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-end mb-0">
+                  <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1">Anterior</a>
+                  </li>
+                  <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                  <li class="page-item"><a class="page-link" href="#">2</a></li>
+                  <li class="page-item"><a class="page-link" href="#">3</a></li>
+                  <li class="page-item">
+                    <a class="page-link" href="#">Siguiente</a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODAL CREAR PRODUCTO ===== -->
+  {% include 'modales/producto_form.html' %}
+
+  {% include "includes/footer.html" %}
+</div>
+
+<!-- ===== JAVASCRIPT MEJORADO ===== -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    // === FILTROS Y BÚSQUEDA ===
+    const busqueda = document.getElementById('buscarProducto');
+    const filtroCategoria = document.getElementById('filtroCategoria');
+    const filtroEstado = document.getElementById('filtroEstado');
+    const productos = document.querySelectorAll('.producto-item');
+    const grid = document.getElementById('gridProductos');
+
+    function filtrarProductos() {
+        const termino = busqueda.value.toLowerCase().trim();
+        const categoriaSeleccionada = filtroCategoria.value;
+        const estadoSeleccionado = filtroEstado.value;
+
+        let visibles = 0;
+
+        productos.forEach(producto => {
+            const nombre = producto.dataset.nombre || '';
+            const categoria = producto.dataset.categoria || '';
+            const estado = producto.dataset.estado || '';
+
+            const coincideBusqueda = nombre.includes(termino);
+            const coincideCategoria = !categoriaSeleccionada || categoria === categoriaSeleccionada;
+            const coincideEstado = !estadoSeleccionado || estado === estadoSeleccionado;
+
+            if (coincideBusqueda && coincideCategoria && coincideEstado) {
+                producto.style.display = '';
+                visibles++;
+            } else {
+                producto.style.display = 'none';
+            }
+        });
+
+        // Actualizar contadores
+        document.getElementById('totalRegistros').textContent = visibles;
+        document.getElementById('mostrandoFin').textContent = visibles;
+
+        // Mostrar mensaje si no hay resultados
+        let mensajeVacio = document.querySelector('.sin-resultados');
+        if (visibles === 0 && productos.length > 0) {
+            if (!mensajeVacio) {
+                const div = document.createElement('div');
+                div.className = 'col-12 text-center py-5 sin-resultados';
+                div.innerHTML = `
+                    <i class="fas fa-search text-secondary" style="font-size: 3rem;"></i>
+                    <h5 class="text-secondary mt-3">No se encontraron productos</h5>
+                    <p class="text-muted">Prueba con otros filtros</p>
+                `;
+                grid.appendChild(div);
+            }
+        } else {
+            if (mensajeVacio) {
+                mensajeVacio.remove();
+            }
+        }
+    }
+
+    busqueda.addEventListener('keyup', filtrarProductos);
+    filtroCategoria.addEventListener('change', filtrarProductos);
+    filtroEstado.addEventListener('change', filtrarProductos);
+
+    // === LIMPIAR FILTROS ===
+    document.getElementById('limpiarFiltros')?.addEventListener('click', function() {
+        busqueda.value = '';
+        filtroCategoria.value = '';
+        filtroEstado.value = '';
+        filtrarProductos();
+    });
+
+    // === CONFIRMAR ELIMINACIÓN ===
+    window.confirmarEliminar = function(id, nombre) {
+        Swal.fire({
+            title: '¿Eliminar producto?',
+            html: `Estás a punto de eliminar <strong>${nombre}</strong>`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Aquí iría la lógica de eliminación
+                Swal.fire(
+                    '¡Eliminado!',
+                    `El producto ${nombre} ha sido eliminado.`,
+                    'success'
+                );
+            }
+        });
+    };
+
+    // === TOOLTIPS ===
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+    tooltipTriggerList.map(function(el) {
+        return new bootstrap.Tooltip(el, {
+            placement: 'top'
+        });
+    });
+
+    // === PAGINACIÓN SIMULADA ===
+    document.querySelectorAll('.pagination .page-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (this.parentElement.classList.contains('disabled')) return;
+            
+            document.querySelectorAll('.pagination .page-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            this.parentElement.classList.add('active');
+        });
+    });
+
+});
+</script>
+
+<!-- ===== CSS MEJORADO ===== -->
+<style>
+    /* === CARDS CON HOVER === */
+    .hover-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: default;
+    }
+    .hover-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.12) !important;
+    }
+
+    /* === BADGES === */
+    .badge {
+        font-weight: 500;
+        padding: 0.4rem 0.7rem;
+        letter-spacing: 0.3px;
+        border-radius: 0.5rem;
+    }
+
+    /* === ICONOS EN CARDS === */
+    .icon-shape {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.75rem;
+    }
+
+    /* === INPUT GROUP MEJORADO === */
+    .input-group-outline .form-control {
+        border-left: none;
+        background: transparent;
+    }
+    .input-group-outline .input-group-text {
+        border-right: none;
+        background: transparent;
+    }
+
+    /* === GRADIENTES === */
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    }
+    .bg-gradient-success {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    }
+    .bg-gradient-warning {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    .bg-gradient-info {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    .bg-gradient-danger {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    .bg-gradient-light {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+
+    /* === RESPONSIVE === */
+    @media (max-width: 768px) {
+        .col-md-2 {
+            margin-top: 10px;
+        }
+        .btn-outline-primary.w-100 {
+            margin-top: 0;
+        }
+        .hover-card {
+            margin-bottom: 0.5rem;
+        }
+    }
+
+    /* === ANIMACIONES === */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: scale(0.95) translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+    .producto-item {
+        animation: fadeInUp 0.4s ease forwards;
+    }
+    .producto-item:nth-child(2) { animation-delay: 0.05s; }
+    .producto-item:nth-child(3) { animation-delay: 0.1s; }
+    .producto-item:nth-child(4) { animation-delay: 0.15s; }
+    .producto-item:nth-child(5) { animation-delay: 0.2s; }
+    .producto-item:nth-child(6) { animation-delay: 0.25s; }
+    .producto-item:nth-child(7) { animation-delay: 0.3s; }
+    .producto-item:nth-child(8) { animation-delay: 0.35s; }
+
+    /* === BOTONES MEJORADOS === */
+    .btn-outline-primary {
+        border-width: 2px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    .btn-outline-primary:hover {
+        background: linear-gradient(135deg, #6a11cb, #2575fc);
+        color: white;
+        border-color: transparent;
+    }
+    .btn-outline-danger {
+        border-width: 2px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    .btn-outline-danger:hover {
+        background: linear-gradient(135deg, #dc3545, #ff6b6b);
+        color: white;
+        border-color: transparent;
+    }
+</style>
+
+<!-- ===== SWEETALERT2 ===== -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+{% endblock content %}

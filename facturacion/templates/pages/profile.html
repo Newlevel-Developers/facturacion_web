@@ -1,0 +1,521 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="container-fluid px-2 px-md-4">
+    
+    <!-- ===== BANNER DE PERFIL ===== -->
+    <div class="page-header min-height-300 border-radius-xl mt-4 position-relative" 
+         style="background-image: url('{% static "assets/img/nl.jpg" %}'); background-size: cover; background-position: center;">
+        <span class="mask bg-gradient-dark opacity-6"></span>
+        
+        <!-- ===== BADGE DE ESTADO ===== -->
+        <div class="position-absolute top-0 end-0 m-4 z-index-2">
+            <span class="badge bg-success">
+                <i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i> Activo
+            </span>
+        </div>
+    </div>
+
+    <!-- ===== TARJETA DE PERFIL ===== -->
+    <div class="card card-body mx-2 mx-md-2 mt-n6 z-index-2 position-relative">
+        
+        <!-- ===== CABECERA DEL PERFIL ===== -->
+        <div class="row gx-4 mb-3">
+            <div class="col-auto">
+                <div class="avatar avatar-xl position-relative">
+                    <img src="{% if user.profile_image %}{{ user.profile_image.url }}{% else %}{% static 'assets/img/default-user.png' %}{% endif %}" 
+                         alt="profile_image" 
+                         class="w-100 border-radius-lg shadow-sm"
+                         style="width: 100px; height: 100px; object-fit: cover;">
+                    <span class="position-absolute bottom-0 end-0 bg-success rounded-circle p-1 border border-2 border-white">
+                        <span style="width: 12px; height: 12px; display: block; border-radius: 50%;"></span>
+                    </span>
+                </div>
+            </div>
+            <div class="col-auto my-auto">
+                <div class="h-100">
+                    <h5 class="mb-1 d-flex align-items-center gap-2">
+                        {{ user.get_full_name|default:user.username }}
+                        {% if user.is_superuser %}
+                            <span class="badge bg-gradient-danger">Admin</span>
+                        {% endif %}
+                    </h5>
+                    <p class="mb-0 font-weight-normal text-sm">
+                        <i class="fas fa-user-tag me-1"></i>
+                        {{ user.groups.first.name|default:"Usuario de Sistema" }}
+                    </p>
+                    <p class="mb-0 font-weight-normal text-xs text-secondary">
+                        <i class="fas fa-calendar-alt me-1"></i>
+                        Miembro desde: {{ user.date_joined|date:"d/m/Y" }}
+                    </p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 my-sm-auto ms-sm-auto me-sm-0 mx-auto mt-3">
+                <div class="nav-wrapper position-relative end-0">
+                    <ul class="nav nav-pills nav-fill p-1 bg-light rounded-3">
+                        <li class="nav-item">
+                            <a class="nav-link mb-0 px-0 py-1 active bg-gradient-primary text-white" href="{% url 'crear_factura' %}">
+                                <i class="fas fa-plus-circle me-1"></i>
+                                <span class="ms-1">Nueva Factura</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link mb-0 px-0 py-1 text-secondary" href="{% url 'editar_perfil' %}">
+                                <i class="fas fa-user-edit me-1"></i>
+                                <span class="ms-1">Editar</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ESTADÍSTICAS RÁPIDAS ===== -->
+        <div class="row mb-3">
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card border-0 bg-gradient-primary shadow-sm">
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <span class="text-white opacity-8 text-sm">Facturas Emitidas</span>
+                                <h4 class="text-white mb-0">{{ total_facturas|default:"0" }}</h4>
+                            </div>
+                            <div class="icon icon-shape bg-white shadow text-center border-radius-md d-flex align-items-center justify-content-center">
+                                <i class="fas fa-file-invoice text-primary"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card border-0 bg-gradient-success shadow-sm">
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <span class="text-white opacity-8 text-sm">Total Facturado</span>
+                                <h4 class="text-white mb-0">${{ total_facturado|default:"0" }}</h4>
+                            </div>
+                            <div class="icon icon-shape bg-white shadow text-center border-radius-md d-flex align-items-center justify-content-center">
+                                <i class="fas fa-dollar-sign text-success"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card border-0 bg-gradient-warning shadow-sm">
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <span class="text-white opacity-8 text-sm">Clientes Atendidos</span>
+                                <h4 class="text-white mb-0">{{ total_clientes|default:"0" }}</h4>
+                            </div>
+                            <div class="icon icon-shape bg-white shadow text-center border-radius-md d-flex align-items-center justify-content-center">
+                                <i class="fas fa-users text-warning"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card border-0 bg-gradient-info shadow-sm">
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <span class="text-white opacity-8 text-sm">Facturación Mes</span>
+                                <h4 class="text-white mb-0">${{ facturacion_mes|default:"0" }}</h4>
+                            </div>
+                            <div class="icon icon-shape bg-white shadow text-center border-radius-md d-flex align-items-center justify-content-center">
+                                <i class="fas fa-chart-line text-info"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== CONTENIDO PRINCIPAL ===== -->
+        <div class="row">
+            
+            <!-- ===== COLUMNA IZQUIERDA: PREFERENCIAS ===== -->
+            <div class="col-12 col-xl-4">
+                <div class="card card-plain h-100">
+                    <div class="card-header pb-0 p-3">
+                        <h6 class="mb-0">
+                            <i class="fas fa-cog text-primary me-2"></i>Preferencias de Facturación
+                        </h6>
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center mb-3 p-2 bg-light rounded-3">
+                            <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                <i class="fas fa-envelope text-white"></i>
+                            </div>
+                            <div class="form-check form-switch ps-0 mb-0">
+                                <input class="form-check-input ms-auto" type="checkbox" id="sendEmail" checked>
+                                <label class="form-check-label text-body ms-3 mb-0" for="sendEmail">
+                                    <span class="font-weight-bold d-block">Enviar copia al cliente</span>
+                                    <span class="text-xs text-secondary">Por Email automáticamente</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex align-items-center mb-3 p-2 bg-light rounded-3">
+                            <div class="icon icon-shape bg-gradient-success shadow text-center border-radius-md d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                <i class="fas fa-calculator text-white"></i>
+                            </div>
+                            <div class="form-check form-switch ps-0 mb-0">
+                                <input class="form-check-input ms-auto" type="checkbox" id="taxAuto">
+                                <label class="form-check-label text-body ms-3 mb-0" for="taxAuto">
+                                    <span class="font-weight-bold d-block">Cálculo automático</span>
+                                    <span class="text-xs text-secondary">De retenciones e impuestos</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex align-items-center p-2 bg-light rounded-3">
+                            <div class="icon icon-shape bg-gradient-warning shadow text-center border-radius-md d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                <i class="fas fa-print text-white"></i>
+                            </div>
+                            <div class="form-check form-switch ps-0 mb-0">
+                                <input class="form-check-input ms-auto" type="checkbox" id="printAuto">
+                                <label class="form-check-label text-body ms-3 mb-0" for="printAuto">
+                                    <span class="font-weight-bold d-block">Impresión automática</span>
+                                    <span class="text-xs text-secondary">Después de crear la factura</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== COLUMNA CENTRAL: DATOS EMPRESA ===== -->
+            <div class="col-12 col-xl-4">
+                <div class="card card-plain h-100">
+                    <div class="card-header pb-0 p-3">
+                        <div class="row">
+                            <div class="col-md-8 d-flex align-items-center">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-building text-primary me-2"></i>Datos de la Empresa
+                                </h6>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <a href="{% url 'editar_perfil' %}" class="btn btn-link text-primary p-0">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-3">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item border-0 ps-0 pt-0 d-flex justify-content-between align-items-center">
+                                <span class="text-sm text-secondary">
+                                    <i class="fas fa-store me-2"></i>Razón Social
+                                </span>
+                                <span class="text-sm font-weight-bold">{{ profile.company_name|default:"-" }}</span>
+                            </li>
+                            <li class="list-group-item border-0 ps-0 d-flex justify-content-between align-items-center">
+                                <span class="text-sm text-secondary">
+                                    <i class="fas fa-id-card me-2"></i>RUT / Tax ID
+                                </span>
+                                <span class="text-sm font-weight-bold">{{ profile.tax_id|default:"-" }}</span>
+                            </li>
+                            <li class="list-group-item border-0 ps-0 d-flex justify-content-between align-items-center">
+                                <span class="text-sm text-secondary">
+                                    <i class="fas fa-envelope me-2"></i>Email Contacto
+                                </span>
+                                <span class="text-sm font-weight-bold">{{ user.email|default:"-" }}</span>
+                            </li>
+                            <li class="list-group-item border-0 ps-0 d-flex justify-content-between align-items-center">
+                                <span class="text-sm text-secondary">
+                                    <i class="fas fa-phone me-2"></i>Teléfono
+                                </span>
+                                <span class="text-sm font-weight-bold">{{ profile.phone|default:"-" }}</span>
+                            </li>
+                            <li class="list-group-item border-0 ps-0 d-flex justify-content-between align-items-center">
+                                <span class="text-sm text-secondary">
+                                    <i class="fas fa-map-marker-alt me-2"></i>Dirección
+                                </span>
+                                <span class="text-sm font-weight-bold text-truncate" style="max-width: 150px;" title="{{ profile.address }}">
+                                    {{ profile.address|default:"-" }}
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== COLUMNA DERECHA: CLIENTES FRECUENTES ===== -->
+            <div class="col-12 col-xl-4">
+                <div class="card card-plain h-100">
+                    <div class="card-header pb-0 p-3 d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="fas fa-star text-warning me-2"></i>Clientes Frecuentes
+                        </h6>
+                        {% comment %} <a href="{% url 'lista_clientes' %}" class="text-primary text-sm">Ver todos</a> {% endcomment %}
+                    </div>
+                    <div class="card-body p-3">
+                        <ul class="list-group">
+                            {% for cliente in clientes_frecuentes %}
+                            <li class="list-group-item border-0 d-flex align-items-center px-0 mb-2">
+                                <div class="avatar me-3 bg-gradient-primary d-flex align-items-center justify-content-center" 
+                                     style="width: 40px; height: 40px; border-radius: 50%;">
+                                    <span class="text-white text-xs font-weight-bold">{{ cliente.nombre|slice:":2"|upper }}</span>
+                                </div>
+                                <div class="d-flex align-items-start flex-column flex-grow-1">
+                                    <h6 class="mb-0 text-sm">{{ cliente.nombre }}</h6>
+                                    <p class="mb-0 text-xs text-secondary">
+                                        <i class="fas fa-shopping-cart me-1"></i>
+                                        Compras: {{ cliente.total_compras|default:"0" }}
+                                    </p>
+                                </div>
+                                <div class="text-end">
+                                    <span class="text-sm font-weight-bold text-success">${{ cliente.total_ventas|default:"0" }}</span>
+                                    <a class="btn btn-link text-primary p-0 ms-2" href="{% url 'cliente_detalle' cliente.id %}">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </div>
+                            </li>
+                            {% empty %}
+                            <li class="list-group-item border-0 text-center py-3">
+                                <i class="fas fa-users-slash text-secondary" style="font-size: 2rem;"></i>
+                                <p class="text-sm text-secondary mt-2">No hay clientes frecuentes</p>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== SECCIÓN: ÚLTIMAS FACTURAS ===== -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0">
+                        <i class="fas fa-file-invoice text-primary me-2"></i>Últimas Facturas Emitidas
+                    </h6>
+                    {% comment %} <a href="{% url 'lista_facturas' %}" class="text-primary text-sm">
+                        Ver todas <i class="fas fa-arrow-right ms-1"></i>
+                    </a> {% endcomment %}
+                </div>
+                <div class="row">
+                    {% for factura in facturas_recientes %}
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-0 shadow-sm hover-card">
+                            <div class="card-body p-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <span class="badge bg-gradient-primary mb-2">#{{ factura.numero }}</span>
+                                        <h5 class="font-weight-bolder mb-0">${{ factura.total }}</h5>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="badge {% if factura.estado == 'Pagada' %}bg-gradient-success{% elif factura.estado == 'Pendiente' %}bg-gradient-warning{% else %}bg-gradient-danger{% endif %}">
+                                            {{ factura.estado }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <p class="mb-0 text-sm text-secondary mt-2">
+                                    <i class="fas fa-user me-1"></i>{{ factura.cliente.nombre|default:"Cliente" }}
+                                </p>
+                                <p class="mb-0 text-xs text-secondary">
+                                    <i class="fas fa-calendar me-1"></i>{{ factura.fecha|date:"d/m/Y H:i" }}
+                                </p>
+                                <div class="mt-3 d-flex gap-1">
+                                    <button class="btn btn-outline-primary btn-sm flex-grow-1">
+                                        <i class="fas fa-eye me-1"></i>Ver
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-sm">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 text-center py-4">
+                        <i class="fas fa-file-invoice fa-3x text-secondary mb-3 d-block"></i>
+                        <h6 class="text-secondary">No hay facturas emitidas</h6>
+                        <p class="text-xs text-muted">Crea tu primera factura para comenzar</p>
+                        <a href="{% url 'crear_factura' %}" class="btn bg-gradient-primary btn-sm">
+                            <i class="fas fa-plus me-2"></i>Crear Factura
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    {% include "includes/footer.html" %}
+</div>
+
+<!-- ===== JAVASCRIPT MEJORADO ===== -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    // === TOOLTIPS ===
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+    tooltipTriggerList.map(function(el) {
+        return new bootstrap.Tooltip(el, {
+            placement: 'top'
+        });
+    });
+
+    // === GUARDAR PREFERENCIAS ===
+    const switches = document.querySelectorAll('.form-check-input');
+    switches.forEach(switchInput => {
+        switchInput.addEventListener('change', function() {
+            const id = this.id;
+            const checked = this.checked;
+            // Aquí puedes guardar las preferencias con AJAX
+            console.log(`Preferencia ${id}: ${checked}`);
+            
+            // Feedback visual
+            const parent = this.closest('.d-flex');
+            if (parent) {
+                parent.style.transition = 'background-color 0.3s ease';
+                parent.style.backgroundColor = checked ? 'rgba(46, 213, 115, 0.1)' : 'rgba(255, 193, 7, 0.1)';
+                setTimeout(() => {
+                    parent.style.backgroundColor = '';
+                }, 300);
+            }
+        });
+    });
+
+});
+</script>
+
+<!-- ===== CSS MEJORADO ===== -->
+<style>
+    /* === HOVER EN TARJETAS === */
+    .hover-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: default;
+    }
+    .hover-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.12) !important;
+    }
+
+    /* === AVATAR CON BORDE === */
+    .avatar-xl {
+        width: 100px;
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+    .avatar-xl img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 0.75rem;
+    }
+
+    /* === ICONOS EN CARDS === */
+    .icon-shape {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.75rem;
+    }
+
+    /* === GRADIENTES MEJORADOS === */
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    }
+    .bg-gradient-success {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    }
+    .bg-gradient-warning {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    .bg-gradient-info {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    .bg-gradient-danger {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    /* === SWITCHES MEJORADOS === */
+    .form-switch .form-check-input {
+        width: 2.5em;
+        height: 1.2em;
+        cursor: pointer;
+    }
+    .form-switch .form-check-input:checked {
+        background-color: #2575fc;
+        border-color: #2575fc;
+    }
+
+    /* === LIST GROUP CON ESPACIADO === */
+    .list-group-item {
+        padding: 0.6rem 0;
+        border-color: rgba(0, 0, 0, 0.05);
+    }
+
+    /* === RESPONSIVE === */
+    @media (max-width: 768px) {
+        .avatar-xl {
+            width: 80px;
+            height: 80px;
+        }
+        .page-header {
+            min-height: 200px !important;
+        }
+        .card.card-body {
+            margin-top: -3rem !important;
+        }
+    }
+
+    /* === ANIMACIONES === */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    .card {
+        animation: fadeInUp 0.5s ease forwards;
+    }
+
+    /* === BADGES DE ESTADO === */
+    .badge {
+        font-weight: 500;
+        padding: 0.4rem 0.7rem;
+        letter-spacing: 0.3px;
+    }
+
+    /* === BOTONES MEJORADOS === */
+    .btn-outline-primary {
+        border-width: 2px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    .btn-outline-primary:hover {
+        background: linear-gradient(135deg, #6a11cb, #2575fc);
+        color: white;
+        border-color: transparent;
+    }
+
+    /* === TEXTO TRUNCADO === */
+    .text-truncate {
+        display: inline-block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: middle;
+    }
+</style>
+
+{% endblock content %}

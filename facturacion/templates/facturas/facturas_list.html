@@ -1,0 +1,66 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Historial de Facturas {% endblock title %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="card">
+    <div class="card-header pb-0">
+      <div class="row">
+        <div class="col-6">
+          <h6>Historial de Facturación</h6>
+        </div>
+        <div class="col-6 text-end">
+          <a href="{% url 'nueva_venta' %}" class="btn btn-primary btn-sm">Nueva Venta</a>
+        </div>
+      </div>
+    </div>
+    <div class="card-body px-0 pt-0 pb-2">
+      <div class="table-responsive p-0">
+        <table class="table align-items-center mb-0">
+          <thead>
+            <tr>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nro. Factura</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Cliente</th>
+              <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Fecha</th>
+              <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Total</th>
+              <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Estado</th>
+              <th class="text-secondary opacity-7">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for factura in facturas %}
+            <tr>
+              <td>
+                <div class="d-flex px-3 py-1">
+                  <h6 class="mb-0 text-sm">{{ factura.numero_factura }}</h6>
+                </div>
+              </td>
+              <td>
+                <p class="text-sm font-weight-bold mb-0">{{ factura.cliente.nombre }}</p>
+              </td>
+              <td class="align-middle text-center text-sm">
+                <span class="text-secondary text-xs font-weight-bold">{{ factura.fecha_emision|date:"d/m/Y H:i" }}</span>
+              </td>
+              <td class="align-middle text-center">
+                <span class="text-secondary text-sm font-weight-bold">${{ factura.total }}</span>
+              </td>
+              <td class="align-middle text-center text-sm">
+                <span class="badge badge-sm bg-gradient-success">{{ factura.estado }}</span>
+              </td>
+              <td class="align-middle">
+                <a href="{% url 'detalle_factura' factura.id %}" class="text-secondary font-weight-bold text-xs"> Ver Detalle </a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center py-4 text-xs font-weight-bold text-uppercase">No hay facturas registradas</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,49 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="card shadow-lg">
+    <div class="card-header bg-dark text-white d-flex justify-content-between">
+      <h6 class="text-white">Detalle de Factura: {{ factura.numero_factura }}</h6>
+      <a href="{% url 'facturas' %}" class="btn btn-sm btn-light">Volver</a>
+    </div>
+    <div class="card-body">
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <p><strong>Cliente:</strong> {{ factura.cliente.nombre }}</p>
+          <p><strong>Fecha:</strong> {{ factura.fecha_emision|date:"d/m/Y H:i" }}</p>
+        </div>
+        <div class="col-md-6 text-end">
+          <p><strong>Estado:</strong> <span class="badge bg-success">{{ factura.estado }}</span></p>
+        </div>
+      </div>
+      <table class="table align-items-center">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th class="text-center">Cantidad</th>
+            <th class="text-end">Precio Unit.</th>
+            <th class="text-end">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in detalles %}
+          <tr>
+            <td>{{ item.producto.nombre }}</td>
+            <td class="text-center">{{ item.cantidad }}</td>
+            <td class="text-end">${{ item.precio_unitario }}</td>
+            <td class="text-end">${{ item.subtotal }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr>
+            <th colspan="3" class="text-end">Total Facturado:</th>
+            <th class="text-end text-primary">${{ factura.total }}</th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock content %}
