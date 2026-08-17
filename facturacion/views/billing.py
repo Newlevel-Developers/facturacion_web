@@ -18,7 +18,18 @@ def crear_factura(request):
         cliente_id = request.POST.get('cliente')
         # Para el número de factura, buscamos la última y sumamos 1
         ultima_factura = Factura.objects.last()
-        nuevo_numero = 1 if not ultima_factura else int(ultima_factura.numero_factura) + 1
+        if not ultima_factura:
+            nuevo_numero = "F001-000001"
+        else:
+            # Separa 'F001-000080' por el guion y toma la parte numérica ('000080')
+            try:
+                numero_actual = int(ultima_factura.numero_factura.split('-')[-1])
+            except ValueError:
+                # Fallback por si hay facturas viejas que solo tenían números sin la 'F'
+                numero_actual = int(ultima_factura.numero_factura)
+                
+            # Genera el nuevo número manteniendo el formato y sumando 1 (ej. F001-000081)
+            nuevo_numero = f"F001-{numero_actual + 1:06d}"
         
         # 2. Obtener listas de productos (desde el frontend)
         productos_ids = request.POST.getlist('producto_id[]')
