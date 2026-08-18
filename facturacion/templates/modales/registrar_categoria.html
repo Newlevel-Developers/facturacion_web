@@ -1,0 +1,43 @@
+<div class="modal fade" id="modalCategoria" tabindex="-1" role="dialog" aria-labelledby="modalProductoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-dark">
+        <h5 class="modal-title font-weight-normal" id="modalProductoLabel">Registrar Nuevo Categoria</h5>
+        <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{% url 'crear_categoria' %}" enctype="multipart/form-data">
+          {% csrf_token %}
+            <div class="row">
+
+                <div class="col-md-8">
+                <div class="input-group input-group-static mb-4">
+                    <label>Nombre de la categoria</label>
+                    <input type="text" name="nombre" class="form-control" placeholder="Nombre descriptivo" required>
+                </div>
+                </div>
+            </div>
+
+
+
+            <div class="row">
+                <div class="col-md-12">
+                <div class="input-group input-group-static mb-4">
+                    <label>Descripción</label>
+                    <textarea name="descripcion" class="form-control" rows="2" placeholder="Detalles adicionales..."></textarea>
+                </div>
+                </div>
+            </div>
+
+
+            <div class="modal-footer px-0">
+                <button type="button" class="btn btn-link  ml-auto" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn bg-gradient-info">Guardar Producto</button>
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

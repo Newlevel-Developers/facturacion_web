@@ -58,3 +58,24 @@ def crear_producto(request):
             return redirect('/index')
     else:
         return redirect('/index')
+    
+
+def crear_categoria(request):
+    if request.method == 'POST':
+           
+            nombre = request.POST.get('nombre')
+            descripcion = request.POST.get('descripcion')
+    
+            try:
+                new_categoria = Categoria.objects.create(
+                    nombre=nombre,
+                    descripcion=descripcion,
+                )
+                
+                return redirect('/productos')
+                
+            except Exception as e:
+                print(f"Error al crear producto: {e}")
+                return redirect('/index')
+    else:
+            return redirect('/index')
