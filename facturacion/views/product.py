@@ -7,12 +7,13 @@ def productos(request):
     categorias = Categoria.objects.all()  
     productos_activos =  productos.filter(activo=True)
     productos_stock_bajo = productos.filter(stock__lte=F('stock_minimo'))
-    total_categorias = categorias.filter(cotegoria_id)
+    total_categorias = categorias.count()
     context = {
         'segment': 'productos',
         'productos': productos,
         'productos_activos': productos_activos, 
         'productos_stock_bajo': productos_stock_bajo,  
+        'total_categorias': total_categorias,
         'categorias': categorias
     }
     return render(request, 'Productos/index.html', context)
