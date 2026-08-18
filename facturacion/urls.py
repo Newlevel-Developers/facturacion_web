@@ -12,17 +12,15 @@ urlpatterns = [
     path('registrar_usuario/', views.registrar_usuario, name="registrar_usuario"),
     path('editar_usuario/', views.editar_usuario, name='editar_usuario'),
     path('billing/', views.billing, name="billing"),
-    # path('virtual-reality/', views.virtual_reality, name="virtual_reality"),
-    # path('rtl/', views.rtl, name="rtl"),
-    # path('notifications/', views.notifications, name="notifications"),
+
     path('profile/', views.profile, name="profile"),
     path('editar_perfil/', views.editar_perfil, name="editar_perfil"),
     path('productos/', views.productos, name="productos"),
     path('crear_producto/', views.crear_producto, name="crear_producto"),
+    path('editar_producto/<int:id>/', views.editar_producto, name="editar_producto"),
     path('crear_categoria/', views.crear_categoria, name="crear_categoria"),
     path('clientes/', views.clientes, name="clientes"),
     path('registrar_clientes/', views.registrar_clientes, name="registrar_clientes"),
-    # path('charts/', views.charts, name="charts"),
     
     # Facturación
     path('facturas/', views.facturas, name="facturas"),
