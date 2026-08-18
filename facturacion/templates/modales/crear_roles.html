@@ -1,0 +1,119 @@
+<!-- ========================================== -->
+<!-- 1. MODAL: REGISTRAR ROL                     -->
+<!-- ========================================== -->
+<div class="modal fade" id="modalRegistrarRol" tabindex="-1" role="dialog" aria-labelledby="labelRegistrarRol" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-dark">
+        <h5 class="modal-title font-weight-normal text-white" id="labelRegistrarRol">Registrar Nuevo Rol</h5>
+        <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{% url 'crear_rol' %}">
+          {% csrf_token %}
+          <div class="row">
+            <div class="col-md-12">
+              <div class="input-group input-group-static mb-4">
+                <label>Nombre del Rol</label>
+                <input type="text" name="name" class="form-control" placeholder="Ej: Administrador, Vendedor..." required>
+              </div>
+            </div>
+          </div>
+
+          <!-- Selección múltiple de Permisos -->
+          <div class="row">
+            <div class="col-md-12">
+              <div class="input-group input-group-static mb-3">
+                <label class="ms-0">Asignar Permisos al Rol</label>
+                <select class="form-control" name="permissions" multiple style="height: 180px;">
+                  {% for perm in permisos %}
+                    <option value="{{ perm.id }}">
+                      [{{ perm.content_type.app_label|title }}] {{ perm.name }}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+              <small class="text-muted d-block mt-0 mb-3">
+                <i class="fas fa-info-circle me-1"></i>Mantén presionado <kbd>Ctrl</kbd> (o <kbd>Cmd</kbd> en Mac) para seleccionar o deseleccionar varios permisos.
+              </small>
+            </div>
+          </div>
+
+          <div class="modal-footer px-0 mb-0 pb-0">
+            <button type="button" class="btn btn-link ml-auto" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn bg-gradient-info mb-0">Guardar Rol</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- 2. MODAL: EDITAR ROL                        -->
+<!-- ========================================== -->
+<div class="modal fade" id="modalEditarRol" tabindex="-1" role="dialog" aria-labelledby="labelEditarRol" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-dark">
+        <h5 class="modal-title font-weight-normal text-white" id="labelEditarRol">Editar Rol y Permisos</h5>
+        <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{% url 'editar_rol' %}">
+          {% csrf_token %}
+          <div class="row">
+            <div class="col-md-12">
+              <div class="input-group input-group-static mb-4">
+                <label class="ms-0">Seleccionar Rol</label>
+                <select class="form-control" name="role_id" required>
+                  <option value="" selected disabled>Seleccione el rol a editar</option>
+                  {% for rol in roles %}
+                    <option value="{{ rol.id }}">{{ rol.name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              <div class="input-group input-group-static mb-4">
+                <label>Nuevo Nombre del Rol</label>
+                <input type="text" name="name" class="form-control" placeholder="Nuevo nombre" required>
+              </div>
+            </div>
+          </div>
+
+          <!-- Selección múltiple de Permisos para Edición -->
+          <div class="row">
+            <div class="col-md-12">
+              <div class="input-group input-group-static mb-3">
+                <label class="ms-0">Actualizar Permisos del Rol</label>
+                <select class="form-control" name="permissions" multiple style="height: 180px;">
+                  {% for perm in permisos %}
+                    <option value="{{ perm.id }}">
+                      [{{ perm.content_type.app_label|title }}] {{ perm.name }}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+              <small class="text-muted d-block mt-0 mb-3">
+                <i class="fas fa-info-circle me-1"></i>Los permisos seleccionados reemplazarán la lista actual del rol. Mantén presionado <kbd>Ctrl</kbd> o <kbd>Cmd</kbd> para selección múltiple.
+              </small>
+            </div>
+          </div>
+
+          <div class="modal-footer px-0 mb-0 pb-0">
+            <button type="button" class="btn btn-link ml-auto" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn bg-gradient-info mb-0">Actualizar Rol</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

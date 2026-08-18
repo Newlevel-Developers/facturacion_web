@@ -107,6 +107,12 @@ def editar_producto(request, id):
     # Si la petición no es POST, simplemente redirigimos a la lista
     return redirect('productos')
 
+def eliminar_producto(request, id):
+    producto = get_object_or_404(Producto, id=id)
+    producto.delete()
+    messages.success(request, 'Producto eliminado con éxito.')
+    return redirect('productos')
+
 def crear_categoria(request):
     if request.method == 'POST':
 
@@ -125,5 +131,35 @@ def crear_categoria(request):
                 print(f"Error al crear producto: {e}")
                 return redirect('/index')
     else:
-            return redirect('/index')
+            return redirect('/index')       
+
+def editar_categoria(request):
+    if request.method == 'POST':
+        # 1. Obtenemos el ID de la categoría enviado por el modal
+        categoria_id = request.POST.get('categoria_id')
         
+        # 2. Buscamos la categoría en la base de datos
+        categoria = get_object_or_404(Categoria, id=categoria_id)
+
+        # 3. Obtenemos los nuevos datos del formulario
+        nombre = request.POST.get('nombre')
+        descripcion = request.POST.get('descripcion')
+
+        # 4. Actualizamos y guardamos
+        categoria.nombre = nombre
+        categoria.descripcion = descripcion
+        categoria.save()
+
+        messages.success(request, f'La categoría "{categoria.nombre}" fue actualizada correctamente.')
+        return redirect('productos')
+
+    return redirect('productos')
+    
+def eliminar_categoria(request):
+    if request.method == 'POST':
+        categoria_id = request.POST.get('categoria_id')
+        categoria = get_object_or_404(Categoria, id=categoria_id)
+        categoria.delete()
+        messages.success(request, 'Categoría eliminada correctamente.')
+        return redirect('productos')
+    return redirect('productos')

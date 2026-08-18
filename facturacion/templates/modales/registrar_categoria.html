@@ -1,41 +1,138 @@
-<div class="modal fade" id="modalCategoria" tabindex="-1" role="dialog" aria-labelledby="modalProductoLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+<!-- ========================================== -->
+<!-- 1. MODAL: REGISTRAR CATEGORÍA             -->
+<!-- ========================================== -->
+<div class="modal fade" id="modalRegistrarCategoria" tabindex="-1" role="dialog" aria-labelledby="labelRegistrarCat" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header bg-info text-dark">
-        <h5 class="modal-title font-weight-normal" id="modalProductoLabel">Registrar Nuevo Categoria</h5>
+        <h5 class="modal-title font-weight-normal text-white" id="labelRegistrarCat">Registrar Nueva Categoría</h5>
         <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
-        <form method="POST" action="{% url 'crear_categoria' %}" enctype="multipart/form-data">
+        <form method="POST" action="{% url 'crear_categoria' %}">
           {% csrf_token %}
-            <div class="row">
-
-                <div class="col-md-8">
-                <div class="input-group input-group-static mb-4">
-                    <label>Nombre de la categoria</label>
-                    <input type="text" name="nombre" class="form-control" placeholder="Nombre descriptivo" required>
-                </div>
-                </div>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="input-group input-group-static mb-4">
+                <label>Nombre de la categoría</label>
+                <input type="text" name="nombre" class="form-control" placeholder="Ej: Bebidas, Víveres..." required>
+              </div>
             </div>
+          </div>
 
-
-
-            <div class="row">
-                <div class="col-md-12">
-                <div class="input-group input-group-static mb-4">
-                    <label>Descripción</label>
-                    <textarea name="descripcion" class="form-control" rows="2" placeholder="Detalles adicionales..."></textarea>
-                </div>
-                </div>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="input-group input-group-static mb-4">
+                <label>Descripción</label>
+                <textarea name="descripcion" class="form-control" rows="2" placeholder="Detalles adicionales..."></textarea>
+              </div>
             </div>
+          </div>
 
+          <div class="modal-footer px-0 mb-0 pb-0">
+            <button type="button" class="btn btn-link ml-auto" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn bg-gradient-info mb-0">Guardar Categoría</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 
-            <div class="modal-footer px-0">
-                <button type="button" class="btn btn-link  ml-auto" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" class="btn bg-gradient-info">Guardar Producto</button>
+<!-- ========================================== -->
+<!-- 2. MODAL: EDITAR CATEGORÍA                -->
+<!-- ========================================== -->
+<div class="modal fade" id="modalEditarCategoria" tabindex="-1" role="dialog" aria-labelledby="labelEditarCat" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-dark">
+        <h5 class="modal-title font-weight-normal text-white" id="labelEditarCat">Editar Categoría</h5>
+        <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{% url 'editar_categoria' %}">
+          {% csrf_token %}
+          <div class="row">
+            <div class="col-md-12">
+              <div class="input-group input-group-static mb-4">
+                <label class="ms-0">Seleccionar Categoría</label>
+                <select class="form-control" name="categoria_id" required>
+                  <option value="" selected disabled>Seleccione la categoría a editar</option>
+                  {% for cat in categorias %}
+                    <option value="{{ cat.id }}">{{ cat.nombre }}</option>
+                  {% endfor %}
+                </select>
+              </div>
             </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              <div class="input-group input-group-static mb-4">
+                <label>Nuevo Nombre</label>
+                <input type="text" name="nombre" class="form-control" placeholder="Nuevo nombre" required>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              <div class="input-group input-group-static mb-4">
+                <label>Nueva Descripción</label>
+                <textarea name="descripcion" class="form-control" rows="2" placeholder="Actualizar detalles..."></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer px-0 mb-0 pb-0">
+            <button type="button" class="btn btn-link ml-auto" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn bg-gradient-info mb-0">Actualizar Categoría</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- 3. MODAL: ELIMINAR CATEGORÍA              -->
+<!-- ========================================== -->
+<div class="modal fade" id="modalEliminarCategoria" tabindex="-1" role="dialog" aria-labelledby="labelEliminarCat" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title font-weight-normal text-white" id="labelEliminarCat">Eliminar Categoría</h5>
+        <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{% url 'eliminar_categoria' %}">
+          {% csrf_token %}
+          <p class="text-sm">Selecciona la categoría que deseas eliminar permanentemente de la base de datos:</p>
+          
+          <div class="row">
+            <div class="col-md-12">
+              <div class="input-group input-group-static mb-4">
+                <label class="ms-0">Categoría a Eliminar</label>
+                <select class="form-control" name="categoria_id" required>
+                  <option value="" selected disabled>Seleccione una categoría</option>
+                  {% for cat in categorias %}
+                    <option value="{{ cat.id }}">{{ cat.nombre }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer px-0 mb-0 pb-0">
+            <button type="button" class="btn btn-link ml-auto text-dark" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn bg-gradient-danger mb-0">Eliminar</button>
+          </div>
         </form>
       </div>
     </div>

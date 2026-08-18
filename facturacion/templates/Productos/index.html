@@ -17,9 +17,32 @@
               <span class="badge bg-white text-primary ms-3">{{ productos|length }}</span>
             </div>
             <div class="d-flex gap-2">
-              <button class="btn btn-white btn-sm mb-0" type="button" data-bs-toggle="modal" data-bs-target="#modalCategoria">
-                <i class="fas fa-plus me-2"></i>Nuevo Categoria
-              </button>
+              <div class="dropdown d-inline-block">
+                <button class="btn btn-white btn-sm mb-0 dropdown-toggle" type="button" id="dropdownCategorias" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="fas fa-folder me-2"></i>Categorías
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="dropdownCategorias">
+                  <!-- Opción 1: Registrar Categoría -->
+                  <li>
+                    <a class="dropdown-item d-flex align-items-center" href="#" data-bs-toggle="modal" data-bs-target="#modalRegistrarCategoria">
+                      <i class="fas fa-plus text-success me-2"></i> Registrar Categoría
+                    </a>
+                  </li>
+                  <!-- Opción 2: Editar Categoría -->
+                  <li>
+                    <a class="dropdown-item d-flex align-items-center" href="#" data-bs-toggle="modal" data-bs-target="#modalEditarCategoria">
+                      <i class="fas fa-pencil-alt text-info me-2"></i> Editar Categoría
+                    </a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <!-- Opción 3: Eliminar Categoría -->
+                  <li>
+                    <a class="dropdown-item d-flex align-items-center text-danger" href="#" data-bs-toggle="modal" data-bs-target="#modalEliminarCategoria">
+                      <i class="fas fa-trash me-2"></i> Eliminar Categoría
+                    </a>
+                  </li>
+                </ul>
+              </div>
               <button class="btn btn-white btn-sm mb-0" type="button" data-bs-toggle="modal" data-bs-target="#modalProducto">
                 <i class="fas fa-plus me-2"></i>Nuevo Producto
               </button>
@@ -214,10 +237,8 @@
                             data-bs-target="#EditarProductoModal{{ producto.id }}">
                       <i class="fas fa-edit me-1"></i>Editar
                     </button>
-                    <button class="btn btn-outline-danger btn-sm" 
-                            title="Eliminar producto"
-                            onclick="confirmarEliminar('{{ producto.id }}', '{{ producto.nombre }}')">
-                      <i class="fas fa-trash-alt"></i>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="confirmarEliminar('{{ producto.id }}', '{{ producto.nombre|escapejs }}')">
+                        <i class="fas fa-trash-alt"></i>
                     </button>
                   </div>
                 </div>
@@ -346,29 +367,26 @@ document.addEventListener('DOMContentLoaded', function() {
         filtrarProductos();
     });
 
-    // === CONFIRMAR ELIMINACIÓN ===
     window.confirmarEliminar = function(id, nombre) {
-        Swal.fire({
-            title: '¿Eliminar producto?',
-            html: `Estás a punto de eliminar <strong>${nombre}</strong>`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Aquí iría la lógica de eliminación
-                Swal.fire(
-                    '¡Eliminado!',
-                    `El producto ${nombre} ha sido eliminado.`,
-                    'success'
-                );
-            }
-        });
-    };
-
+      Swal.fire({
+          title: '¿Eliminar producto?',
+          html: `Estás a punto de eliminar <strong>${nombre}</strong>`,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#3085d6',
+          confirmButtonText: 'Sí, eliminar',
+          cancelButtonText: 'Cancelar'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              // Generamos la plantilla de la URL de Django usando '0' como identificador temporal
+              let url = "{% url 'eliminar_producto' 0 %}".replace('0', id);
+              
+              // Redirigimos a la vista en Python
+              window.location.href = url;
+          }
+      });
+  };
     // === TOOLTIPS ===
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
     tooltipTriggerList.map(function(el) {

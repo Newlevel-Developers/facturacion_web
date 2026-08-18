@@ -11,6 +11,9 @@ urlpatterns = [
     path('usuarios/', views.usuarios, name="usuarios"),
     path('registrar_usuario/', views.registrar_usuario, name="registrar_usuario"),
     path('editar_usuario/', views.editar_usuario, name='editar_usuario'),
+    path('crear_rol/', views.crear_rol, name='crear_rol'),
+    path('editar_rol/', views.editar_rol, name='editar_rol'),
+    path('eliminar_rol/', views.eliminar_rol, name='eliminar_rol'),
     path('billing/', views.billing, name="billing"),
 
     path('profile/', views.profile, name="profile"),
@@ -18,7 +21,10 @@ urlpatterns = [
     path('productos/', views.productos, name="productos"),
     path('crear_producto/', views.crear_producto, name="crear_producto"),
     path('editar_producto/<int:id>/', views.editar_producto, name="editar_producto"),
+    path('eliminar_producto/<int:id>/', views.eliminar_producto, name='eliminar_producto'),
     path('crear_categoria/', views.crear_categoria, name="crear_categoria"),
+    path('editar_categoria', views.editar_categoria, name="editar_categoria"),
+    path('eliminar_categoria', views.eliminar_categoria, name="eliminar_categoria"),
     path('clientes/', views.clientes, name="clientes"),
     path('registrar_clientes/', views.registrar_clientes, name="registrar_clientes"),
     
