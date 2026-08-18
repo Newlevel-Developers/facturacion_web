@@ -1,13 +1,18 @@
 from django.shortcuts import render, redirect
 from facturacion.models import Producto, Categoria  
-
+from django.db.models import F
 def productos(request):
     
     productos = Producto.objects.all()   
-    categorias = Categoria.objects.all()       
+    categorias = Categoria.objects.all()  
+    productos_activos =  productos.filter(activo=True)
+    productos_stock_bajo = productos.filter(stock__lte=F('stock_minimo'))
+    total_categorias = categorias.filter(cotegoria_id)
     context = {
         'segment': 'productos',
         'productos': productos,
+        'productos_activos': productos_activos, 
+        'productos_stock_bajo': productos_stock_bajo,  
         'categorias': categorias
     }
     return render(request, 'Productos/index.html', context)

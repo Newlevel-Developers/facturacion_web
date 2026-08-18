@@ -18,6 +18,9 @@
             </div>
             <div class="d-flex gap-2">
               <button class="btn btn-white btn-sm mb-0" type="button" data-bs-toggle="modal" data-bs-target="#modalProducto">
+                <i class="fas fa-plus me-2"></i>Nuevo Categoria
+              </button>
+              <button class="btn btn-white btn-sm mb-0" type="button" data-bs-toggle="modal" data-bs-target="#modalProducto">
                 <i class="fas fa-plus me-2"></i>Nuevo Producto
               </button>
             </div>
@@ -47,7 +50,7 @@
                 <div class="d-flex justify-content-between">
                   <div>
                     <span class="text-white opacity-8 text-sm">Productos Activos</span>
-                    <h4 class="text-white mb-0">{{ productos_activos|default:"0" }}</h4>
+                    <h4 class="text-white mb-0">{{ productos_activos|length }}</h4>
                   </div>
                   <div class="icon icon-shape bg-white shadow text-center border-radius-md d-flex align-items-center justify-content-center">
                     <i class="fas fa-check-circle text-success"></i>
@@ -62,7 +65,7 @@
                 <div class="d-flex justify-content-between">
                   <div>
                     <span class="text-white opacity-8 text-sm">Stock Bajo</span>
-                    <h4 class="text-white mb-0">{{ productos_stock_bajo|default:"0" }}</h4>
+                    <h4 class="text-white mb-0">{{ productos_stock_bajo|length }}</h4>
                   </div>
                   <div class="icon icon-shape bg-white shadow text-center border-radius-md d-flex align-items-center justify-content-center">
                     <i class="fas fa-exclamation-triangle text-warning"></i>
