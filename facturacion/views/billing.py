@@ -98,7 +98,7 @@ def crear_factura(request):
 def billing(request):
     # Obtenemos las últimas 5 facturas
     facturas = Factura.objects.all().order_by('-fecha_emision')[:5]
-    
+    total_facturas = len(facturas)
     # Obtenemos los clientes para la sección "Billing Information"
     clientes_billing = Cliente.objects.filter(activo=True)[:3]
     
@@ -109,8 +109,9 @@ def billing(request):
         'facturas': facturas,
         'clientes': clientes_billing,
         'total_ingresos': total_ingresos,
+        'total_facturas': total_facturas
     }
-    return render(request, 'pages/billing.html', context)
+    return render(request, 'facturas/billing.html', context)
 
 def detalle_factura(request, factura_id):
     # Buscamos la factura o devolvemos 404 si no existe
@@ -123,4 +124,4 @@ def detalle_factura(request, factura_id):
         'factura': factura,
         'detalles': detalles
     }
-    return render(request, 'pages/detalle_factura.html', context)
+    return render(request, 'facturas/detalle_factura.html', context)

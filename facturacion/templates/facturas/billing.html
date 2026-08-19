@@ -14,7 +14,7 @@
                         <div class="col-8">
                             <div class="numbers">
                                 <p class="text-sm mb-0 text-uppercase font-weight-bold">Total Facturas</p>
-                                <h5 class="font-weight-bolder">{{ total_facturas|default:"0" }}</h5>
+                                <h5 class="font-weight-bolder">{{ total_facturas|length}}</h5>
                             </div>
                         </div>
                         <div class="col-4 text-end">
@@ -74,7 +74,7 @@
                         <div class="col-8">
                             <div class="numbers">
                                 <p class="text-sm mb-0 text-uppercase font-weight-bold">Total Ingresos</p>
-                                <h5 class="font-weight-bolder">${{ total_ingresos|default:"0" }}</h5>
+                                <h5 class="font-weight-bolder">${{ total_ingresos|length }}</h5>
                             </div>
                         </div>
                         <div class="col-4 text-end">
@@ -197,11 +197,11 @@
                                         <p class="text-xs text-secondary mb-0">IVA incluido</p>
                                     </td>
                                     <td>
-                                        {% if factura.estado == 'Pagado' %}
+                                        {% if factura.get_estado_display == 'Pagado' %}
                                             <span class="badge bg-gradient-success">
                                                 <i class="fas fa-check-circle me-1"></i>Pagado
                                             </span>
-                                        {% elif factura.estado == 'Pendiente' %}
+                                        {% elif factura.get_estado_display == 'Pendiente' %}
                                             <span class="badge bg-gradient-warning">
                                                 <i class="fas fa-clock me-1"></i>Pendiente
                                             </span>
@@ -212,7 +212,7 @@
                                         {% endif %}
                                     </td>
                                     <td class="align-middle text-center">
-                                        <a href="#" class="btn btn-link text-dark px-2 mb-0" data-bs-toggle="tooltip" title="Ver">
+                                        <a href="{% url 'detalle_factura' factura.id %}" class="btn btn-link text-dark px-2 mb-0" data-bs-toggle="tooltip" title="Ver">
                                             <i class="fas fa-eye text-sm"></i>
                                         </a>
                                         <a href="#" class="btn btn-link text-dark px-2 mb-0" data-bs-toggle="tooltip" title="PDF">

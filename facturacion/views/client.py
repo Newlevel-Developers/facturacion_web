@@ -3,10 +3,17 @@ from facturacion.models import Cliente, tipo_documnento
 
 def clientes(request):
     clientes = Cliente.objects.all()
+    clientes_activos = clientes.filter(activo=True)
+    if clientes.exists():
+        ultimo_registro = clientes.latest('fecha_registro')
+    else:
+        ultimo_registro = None
     tipo = tipo_documnento.objects.all()
     context = {
         'segment': 'clientes',
         'clientes': clientes,
+        'clientes_activos': clientes_activos,
+        'ultimo_registro': ultimo_registro,
         'tipos_documento': tipo
     }
     return render(request, 'Clientes/index.html', context)

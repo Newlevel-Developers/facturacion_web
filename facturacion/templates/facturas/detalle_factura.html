@@ -1,0 +1,117 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="card shadow-lg">
+    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+      <h6 class="text-white mb-0"><i class="fas fa-file-invoice me-2"></i>Factura Electrónica: {{ factura.numero_factura }}</h6>
+      <div>
+        <button onclick="window.print();" class="btn btn-sm btn-outline-light me-1">
+          <i class="fas fa-print me-1"></i> Imprimir / PDF
+        </button>
+        <a href="{% url 'facturas' %}" class="btn btn-sm btn-light">Volver</a>
+      </div>
+    </div>
+    
+    <div class="card-body p-4">
+      <!-- DATOS DE TIENDA VIRTUAL Y CLIENTE -->
+      <div class="row mb-4 border-bottom pb-4">
+        <!-- Emisor (Empresa Virtual) -->
+        <div class="col-md-6 mb-3 mb-md-0">
+          <span class="badge bg-gradient-info mb-2"><i class="fas fa-globe me-1"></i> Tienda Online</span>
+          <h5 class="font-weight-bold mb-1">New level Developers</h5>
+          <p class="text-sm mb-0"><strong>ID Fiscal / NIT:</strong> J-12345678-0</p>
+          <p class="text-sm mb-0"><strong>Sitio Web:</strong> https://newlevel-dev.freedev.app</p>
+          <p class="text-sm mb-0"><strong>Soporte / Email:</strong> levelnew2026@gmail.com</p>
+        </div>
+        
+        <!-- Receptor (Cliente Online) -->
+        <div class="col-md-6 text-md-end">
+          <h6 class="text-uppercase text-xs text-secondary font-weight-bolder">Cliente</h6>
+          <h5 class="font-weight-bold mb-1">{{ factura.cliente.nombre }}</h5>
+          <p class="text-sm mb-0"><strong>Documento ID:</strong> {{ factura.cliente.documento|default:"Sin Documento" }}</p>
+          <p class="text-sm mb-0"><strong>Email:</strong> {{ factura.cliente.email|default:"correo@cliente.com" }}</p>
+          <p class="text-sm mb-0"><strong>Dirección de Envío:</strong> {{ factura.direccion_envio|default:"Envío Digital / Descargar" }}</p>
+        </div>
+      </div>
+
+      <!-- DETALLES TRANSACCIONALES VIRTUALES -->
+      <div class="row mb-4 bg-light p-3 border-radius-lg mx-0">
+        <div class="col-sm-4 mb-2 mb-sm-0">
+          <span class="text-xs text-secondary d-block">Fecha de Emisión</span>
+          <strong class="text-sm">{{ factura.fecha_emision|date:"d/m/Y H:i" }}</strong>
+        </div>
+        <div class="col-sm-4 mb-2 mb-sm-0">
+          <span class="text-xs text-secondary d-block">Método de Pago</span>
+          <strong class="text-sm"><i class="fas fa-credit-card me-1"></i> {{ factura.metodo_pago|default:"Tarjeta / Transferencia" }}</strong>
+        </div>
+        <div class="col-sm-4 text-sm-end">
+          <span class="text-xs text-secondary d-block">Estado del Pago</span>
+          <span class="badge bg-success">{{ factura.estado }}</span>
+        </div>
+      </div>
+
+      <!-- TABLA DE PRODUCTOS -->
+      <div class="table-responsive">
+        <table class="table align-items-center mb-0">
+          <thead>
+            <tr>
+              <th>Producto / Servicio</th>
+              <th class="text-center">Cantidad</th>
+              <th class="text-end">Precio Unit.</th>
+              <th class="text-end">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in detalles %}
+            <tr>
+              <td>
+                <span class="font-weight-bold d-block">{{ item.producto.nombre }}</span>
+                <span class="text-xs text-secondary">SKU: {{ item.producto.sku|default:"N/A" }}</span>
+              </td>
+              <td class="text-center">{{ item.cantidad }}</td>
+              <td class="text-end">${{ item.precio_unitario }}</td>
+              <td class="text-end">${{ item.subtotal }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- DESGLOSE DE TOTALES -->
+      <div class="row justify-content-end mt-4">
+        <div class="col-md-5 col-lg-4">
+          <div class="table-responsive">
+            <table class="table table-borderless text-end">
+              <tbody>
+                <tr>
+                  <td class="fw-bold">Subtotal:</td>
+                  <td>${{ factura.subtotal|default:"7250.00" }}</td>
+                </tr>
+                <tr>
+                  <td class="fw-bold">Costo de Envío:</td>
+                  <td>${{ factura.costo_envio|default:"0.00" }}</td>
+                </tr>
+                <tr>
+                  <td class="fw-bold">IVA (16%):</td>
+                  <td>${{ factura.iva|default:"1160.00" }}</td>
+                </tr>
+                <tr class="border-top">
+                  <td class="fw-bold fs-5">Total Pagado:</td>
+                  <td class="fw-bold fs-5 text-primary">${{ factura.total }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOTA DE PIE DE PÁGINA DIGITAL -->
+      <div class="text-center text-muted text-xs border-top pt-3 mt-3">
+        <p class="mb-0">Gracias por tu compra. Esta es una representación impresa de un comprobante electrónico emitido por TechStore Virtual.</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock content %}
