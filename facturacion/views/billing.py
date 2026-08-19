@@ -93,7 +93,7 @@ def crear_factura(request):
             print(f"Error en facturación: {e}")
             return redirect('/index')
             
-    return redirect('facturas/index.html')
+    return redirect('/facturas')
 
 def billing(request):
     # Obtenemos las últimas 5 facturas

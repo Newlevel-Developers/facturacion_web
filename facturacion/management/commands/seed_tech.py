@@ -13,7 +13,9 @@ from facturacion.models import (
     Categoria,
     Producto,
     Factura,
-    DetalleFactura
+    DetalleFactura,
+    Proveedor,
+    IngresoStock
 )
 
 fake = Faker(['es_ES', 'es_CO', 'es_MX'])  # Genera datos en español
@@ -47,9 +49,34 @@ class Command(BaseCommand):
             usuarios.append(user)
 
         # ----------------------------------------------------
-        # 2. TIPOS DE DOCUMENTO
+        # 2. PROVEEDORES
         # ----------------------------------------------------
-        self.stdout.write("2. Creando tipos de documentos...")
+        self.stdout.write("2. Creando proveedores de tecnología...")
+        proveedores_demo = [
+            ("J-30012345-0", "TechSupply Wholesale C.A.", "contacto@techsupply.com", "+58 212 5550101"),
+            ("J-30098765-1", "Importadora Global Tech S.A.", "ventas@globaltech.com", "+58 212 5550102"),
+            ("J-40011223-3", "Distribuidora Asus & Hardware R.L.", "pedidos@ashardware.com", "+58 241 5550103"),
+            ("J-40044556-4", "Comercializadora Computo Express", "info@computoexpress.com", "+58 261 5550104")
+        ]
+        
+        proveedores = []
+        for rif, razon_social, email_prov, tlf in proveedores_demo:
+            proveedor, _ = Proveedor.objects.get_or_create(
+                rif_cedula=rif,
+                defaults={
+                    "nombre_razon_social": razon_social,
+                    "email": email_prov,
+                    "telefono": tlf,
+                    "direccion": fake.address().replace("\n", ", "),
+                    "activo": True
+                }
+            )
+            proveedores.append(proveedor)
+
+        # ----------------------------------------------------
+        # 3. TIPOS DE DOCUMENTO
+        # ----------------------------------------------------
+        self.stdout.write("3. Creando tipos de documentos...")
         tipos_doc_nombres = ["DNI", "RUC", "Pasaporte", "Cedula de Ciudadania"]
         tipos_doc_objs = []
         for tipo in tipos_doc_nombres:
@@ -57,9 +84,9 @@ class Command(BaseCommand):
             tipos_doc_objs.append(doc)
 
         # ----------------------------------------------------
-        # 3. CLIENTES (50 Clientes)
+        # 4. CLIENTES (50 Clientes)
         # ----------------------------------------------------
-        self.stdout.write("3. Generando 50 clientes...")
+        self.stdout.write("4. Generando 50 clientes...")
         clientes = []
         for _ in range(50):
             td = random.choice(tipos_doc_objs)
@@ -79,9 +106,9 @@ class Command(BaseCommand):
             clientes.append(cliente)
 
         # ----------------------------------------------------
-        # 4. CATEGORÍAS Y PRODUCTOS DE TECNOLOGÍA
+        # 5. CATEGORÍAS Y PRODUCTOS DE TECNOLOGÍA
         # ----------------------------------------------------
-        self.stdout.write("4. Creando categorías y catálogo de productos...")
+        self.stdout.write("5. Creando categorías y catálogo de productos...")
         
         catalogo_tech = {
             "Laptops y Laptops Gamer": [
@@ -122,23 +149,37 @@ class Command(BaseCommand):
 
             for prod in lista_prods:
                 nombre, desc, p_compra, p_venta = prod
+                stock_inicial = random.randint(15, 60)
+
                 p = Producto.objects.create(
                     codigo=f"TEC-{random.randint(10000, 99999)}",
                     nombre=nombre,
                     descripcion=desc,
                     precio_compra=Decimal(str(p_compra)),
                     precio_venta=Decimal(str(p_venta)),
-                    stock=random.randint(5, 50),
+                    stock=stock_inicial,
                     stock_minimo=3,
                     activo=True,
                     categoria=categoria_obj
                 )
                 productos_creados.append(p)
 
+                # ----------------------------------------------------
+                # 6. HISTORIAL DE INGRESO DE STOCK
+                # ----------------------------------------------------
+                IngresoStock.objects.create(
+                    producto=p,
+                    proveedor=random.choice(proveedores),
+                    usuario=random.choice(usuarios),
+                    cantidad=stock_inicial,
+                    precio_compra=Decimal(str(p_compra)),
+                    observacion="Carga inicial de inventario / Importación"
+                )
+
         # ----------------------------------------------------
-        # 5. FACTURAS Y DETALLES (80 Facturas emitidas)
+        # 7. FACTURAS Y DETALLES (80 Facturas emitidas)
         # ----------------------------------------------------
-        self.stdout.write("5. Generando 80 facturas con sus detalles...")
+        self.stdout.write("7. Generando 80 facturas con sus detalles...")
 
         tipos_comprobante = ["Factura", "Boleta"]
         estados = ["Pagada", "Pendiente", "Anulada"]

@@ -39,13 +39,13 @@ def registrar_usuario(request):
             new_user = User.objects.create_user(username=username, password=password, email=email, first_name=first_name, last_name=last_name)
             new_user.save()
             print('User created successfully!')
-            return redirect('/tables')
+            return redirect('/usuarios')
         except Exception as e:
             print(f"Error creating user: {e}")
             return redirect('/index')
     else:
         print("Invalid request method!")
-        return redirect('/index')
+        return redirect('/usuarios')
 
 def editar_usuario(request):
     if request.method == 'POST':
@@ -76,17 +76,8 @@ def editar_usuario(request):
     
     return redirect('/index')
 
-
-def profile(request):
-    context = {
-        'segment': 'profile'
-    }
-    return render(request, 'pages/profile.html', context)
-
-
 def editar_perfil(request):
     pass
-
 
 def crear_rol(request):
     if request.method == 'POST':
@@ -120,7 +111,6 @@ def crear_rol(request):
 
     return redirect('/usuarios')
 
-
 def editar_rol(request):
     if request.method == 'POST':
         role_id = request.POST.get('role_id')
@@ -129,7 +119,7 @@ def editar_rol(request):
 
         if not role_id or not nuevo_nombre:
             messages.error(request, "Debes seleccionar un rol y proporcionar un nombre.")
-            return redirect('/tables')
+            return redirect('/usuarios')
 
         try:
             rol = Group.objects.get(id=role_id)
@@ -137,7 +127,7 @@ def editar_rol(request):
             # Verificar nombre duplicado
             if Group.objects.filter(name__iexact=nuevo_nombre).exclude(id=role_id).exists():
                 messages.warning(request, f"Ya existe otro rol llamado '{nuevo_nombre}'.")
-                return redirect('/tables')
+                return redirect('/usuarios')
 
             rol.name = nuevo_nombre
             rol.save()
@@ -152,11 +142,9 @@ def editar_rol(request):
         except Exception as e:
             messages.error(request, f"Error al actualizar el rol: {e}")
 
-        return redirect('/tables')
+        return redirect('/usuarios')
 
-    return redirect('/tables')
-
-
+    return redirect('/usuarios')
 
 def eliminar_rol(request):
     if request.method == 'POST':
@@ -164,7 +152,7 @@ def eliminar_rol(request):
 
         if not role_id:
             messages.error(request, "Debes seleccionar un rol para eliminar.")
-            return redirect('/tables')
+            return redirect('/usuarios')
 
         try:
             rol = Group.objects.get(id=role_id)
@@ -176,6 +164,6 @@ def eliminar_rol(request):
         except Exception as e:
             messages.error(request, f"Error al eliminar el rol: {e}")
 
-        return redirect('/tables')
+        return redirect('/usuarios')
 
-    return redirect('/tables')
+    return redirect('/usuarios')
