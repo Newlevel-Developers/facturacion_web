@@ -32,24 +32,46 @@ def registrar_usuario(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
         
-        if not username or not email or not password or not first_name or not last_name:
-            print("All fields are required!")
-            return redirect('/index')
-        try:
-            new_user = User.objects.create_user(username=username, password=password, email=email, first_name=first_name, last_name=last_name)
-            new_user.save()
-            print('User created successfully!')
+        # Obtenemos los IDs o el ID del rol/grupo seleccionado desde el formulario
+        # Se usa getlist si en el HTML permites varios roles (<select multiple>) 
+        # o get si es un select de un solo rol.
+        role_id = request.POST.get('role_id') 
+
+        if not all([username, email, password, first_name, last_name]):
+            messages.error(request, "Todos los campos son obligatorios.")
             return redirect('/usuarios')
+
+        try:
+            # 1. Crear el usuario
+            new_user = User.objects.create_user(
+                username=username, 
+                password=password, 
+                email=email, 
+                first_name=first_name, 
+                last_name=last_name
+            )
+
+            # 2. Asignar el Rol (Grupo)
+            if role_id:
+                try:
+                    rol = Group.objects.get(id=role_id)
+                    new_user.groups.add(rol)  # Agrega el grupo/rol al usuario
+                except Group.DoesNotExist:
+                    messages.warning(request, "Usuario creado, pero el rol seleccionado no existe.")
+
+            messages.success(request, '¡Usuario registrado correctamente!')
+            return redirect('/usuarios')
+
         except Exception as e:
-            print(f"Error creating user: {e}")
-            return redirect('/index')
-    else:
-        print("Invalid request method!")
-        return redirect('/usuarios')
+            messages.error(request, f"Error al crear el usuario: {e}")
+            return redirect('/usuarios')
+
+    return redirect('/usuarios')
 
 def editar_usuario(request):
     if request.method == 'POST':
         user_id = request.POST.get('user_id')
+        role_id = request.POST.get('role_id')  # Captura el nuevo rol seleccionado
         
         try:
             user = User.objects.get(id=user_id)
@@ -58,23 +80,37 @@ def editar_usuario(request):
             user.email = request.POST.get('email')
             user.username = request.POST.get('username')
             
-            # Validación simple
+            # Validación
             if not all([user.first_name, user.last_name, user.email, user.username]):
                 messages.error(request, "Todos los campos son obligatorios.")
-                return redirect('/tables')
+                return redirect('/usuarios')
 
+            # 1. Guardar cambios básicos del usuario
             user.save()
-            messages.success(request, '¡Usuario actualizado correctamente!')
-            return redirect('/tables')
+
+            # 2. Actualizar el Rol (Grupo)
+            if role_id:
+                try:
+                    rol = Group.objects.get(id=role_id)
+                    # user.groups.set([rol]) limpia los roles anteriores y asigna el nuevo
+                    user.groups.set([rol]) 
+                except Group.DoesNotExist:
+                    messages.warning(request, "El rol seleccionado no existe.")
+            else:
+                # Si no se seleccionó ningún rol, limpia los roles del usuario
+                user.groups.clear()
+
+            messages.success(request, '¡Usuario y rol actualizados correctamente!')
+            return redirect('/usuarios')
             
         except User.DoesNotExist:
             messages.error(request, "Usuario no encontrado.")
         except Exception as e:
             messages.error(request, f"Error: {e}")
         
-        return redirect('/tables')
+        return redirect('/usuarios')
     
-    return redirect('/index')
+    return redirect('/usuarios')
 
 def editar_perfil(request):
     pass

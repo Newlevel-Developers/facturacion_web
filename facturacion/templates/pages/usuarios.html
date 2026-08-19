@@ -195,7 +195,7 @@
                         <span class="badge bg-gradient-danger">Admin</span>
                       {% elif usuario.groups.first.name == 'Vendedor' %}
                         <span class="badge bg-gradient-success">Vendedor</span>
-                      elif usuario.groups.first.name == 'Cliente' %}
+                      {% elif usuario.groups.first.name == 'Cliente' %}
                         <span class="badge bg-gradient-info">Cliente</span>
                       {% else %}
                         <span class="badge bg-gradient-secondary">{{ usuario.groups.first.name|default:"Sin Rol" }}</span>
