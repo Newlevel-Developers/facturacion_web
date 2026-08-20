@@ -1,6 +1,9 @@
 from django.shortcuts import render, redirect
 from facturacion.models import Cliente, tipo_documnento
+from django.contrib.auth.decorators import login_required, permission_required
 
+@login_required
+@permission_required('facturacion.view_cliente', raise_exception=True)
 def clientes(request):
     clientes = Cliente.objects.all()
     clientes_activos = clientes.filter(activo=True)

@@ -54,12 +54,14 @@
             <span class="nav-link-text ms-1">Inicio</span>
           </a>
         </li>
+        {% if perms.facturacion.view_cliente %}
         <li class="nav-item">
           <a class="nav-link {% if 'clientes' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url "clientes" %}">
             <i class="material-symbols-rounded opacity-5">people</i>
             <span class="nav-link-text ms-1">Clientes</span>
           </a>
         </li>
+        {% endif %}
         <li class="nav-item">
           <a class="nav-link {% if 'productos' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url "productos" %}">
             <i class="material-symbols-rounded opacity-5">inventory_2</i>
