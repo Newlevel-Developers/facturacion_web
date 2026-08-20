@@ -3,6 +3,11 @@ from django.db import models
 from .client import Cliente
 from .product import Producto
 class Factura(models.Model):
+    ESTADO_CHOICES = [
+        ('PAGADO', 'Pagado'),
+        ('PENDIENTE', 'Pendiente'),
+        ('CANCELADO', 'Cancelado'),
+    ]
     numero_factura = models.CharField(max_length=20)
     tipo_comprobante = models.CharField(max_length=10)
     fecha_emision = models.DateTimeField()
@@ -10,7 +15,11 @@ class Factura(models.Model):
     subtotal = models.DecimalField(max_digits=10, decimal_places=2)
     igv = models.DecimalField(max_digits=10, decimal_places=2)
     total = models.DecimalField(max_digits=10, decimal_places=2)
-    estado = models.CharField(max_length=10)
+    estado = models.CharField(
+        max_length=10, 
+        choices=ESTADO_CHOICES, 
+        default='PENDIENTE'
+    )
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
 

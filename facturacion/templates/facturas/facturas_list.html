@@ -1,66 +1,253 @@
 {% extends "layouts/base.html" %}
 
-{% block title %} Historial de Facturas {% endblock title %}
+{% block title %}Historial de Facturas{% endblock title %}
 
 {% block content %}
 <div class="container-fluid py-4">
-  <div class="card">
-    <div class="card-header pb-0">
-      <div class="row">
-        <div class="col-6">
-          <h6>Historial de Facturación</h6>
-        </div>
-        <div class="col-6 text-end">
-          <a href="{% url 'nueva_venta' %}" class="btn btn-primary btn-sm">Nueva Venta</a>
-        </div>
-      </div>
-    </div>
-    <div class="card-body px-0 pt-0 pb-2">
-      <div class="table-responsive p-0">
-        <table class="table align-items-center mb-0">
-          <thead>
-            <tr>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nro. Factura</th>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Cliente</th>
-              <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Fecha</th>
-              <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Total</th>
-              <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Estado</th>
-              <th class="text-secondary opacity-7">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for factura in facturas %}
-            <tr>
-              <td>
-                <div class="d-flex px-3 py-1">
-                  <h6 class="mb-0 text-sm">{{ factura.numero_factura }}</h6>
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <!-- Cabecera mejorada -->
+        <div class="card-header pb-0">
+          <div class="row align-items-center">
+            <div class="col-6">
+              <h6 class="mb-0">
+                <i class="fas fa-file-invoice me-2 text-primary"></i>Historial de Facturación
+              </h6>
+              <p class="text-sm text-secondary mb-0">
+                Total de facturas: <strong>{{ facturas|length }}</strong>
+              </p>
+            </div>
+            <div class="col-6 text-end">
+              <div class="d-flex justify-content-end gap-2">
+                <!-- Filtro rápido por estado -->
+                <div class="dropdown">
+                  <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-filter me-1"></i>Filtrar
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="?estado=todos">Todos</a></li>
+                    <li><a class="dropdown-item" href="?estado=Pagado">Pagado</a></li>
+                    <li><a class="dropdown-item" href="?estado=Pendiente">Pendiente</a></li>
+                    <li><a class="dropdown-item" href="?estado=Anulado">Anulado</a></li>
+                  </ul>
                 </div>
-              </td>
-              <td>
-                <p class="text-sm font-weight-bold mb-0">{{ factura.cliente.nombre }}</p>
-              </td>
-              <td class="align-middle text-center text-sm">
-                <span class="text-secondary text-xs font-weight-bold">{{ factura.fecha_emision|date:"d/m/Y H:i" }}</span>
-              </td>
-              <td class="align-middle text-center">
-                <span class="text-secondary text-sm font-weight-bold">${{ factura.total }}</span>
-              </td>
-              <td class="align-middle text-center text-sm">
-                <span class="badge badge-sm bg-gradient-success">{{ factura.estado }}</span>
-              </td>
-              <td class="align-middle">
-                <a href="{% url 'detalle_factura' factura.id %}" class="text-secondary font-weight-bold text-xs"> Ver Detalle </a>
-              </td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="6" class="text-center py-4 text-xs font-weight-bold text-uppercase">No hay facturas registradas</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+                <!-- Botón Nueva Venta -->
+                <a href="{% url 'nueva_venta' %}" class="btn btn-primary btn-sm">
+                  <i class="fas fa-plus me-1"></i>Nueva Venta
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body px-0 pt-0 pb-2">
+          <!-- Barra de búsqueda -->
+          <div class="px-3 pb-2">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text"><i class="fas fa-search"></i></span>
+              <input type="text" class="form-control" id="buscarFactura" placeholder="Buscar por número o cliente..." 
+                     onkeyup="filtrarTabla()">
+            </div>
+          </div>
+
+          <!-- Tabla mejorada -->
+          <div class="table-responsive p-0">
+            <table class="table align-items-center mb-0" id="tablaFacturas">
+              <thead>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nro. Factura</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Cliente</th>
+                  <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Fecha</th>
+                  <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Total</th>
+                  <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Estado</th>
+                  <th class="text-secondary opacity-7">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for factura in facturas %}
+                <tr>
+                  <td>
+                    <div class="d-flex px-3 py-1">
+                      <h6 class="mb-0 text-sm">
+                        <span class="badge bg-light text-dark">#{{ factura.numero_factura }}</span>
+                      </h6>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="d-flex flex-column">
+                      <p class="text-sm font-weight-bold mb-0">{{ factura.cliente.nombre }}</p>
+                      {% if factura.cliente.identificacion %}
+                        <small class="text-secondary text-xs">{{ factura.cliente.identificacion }}</small>
+                      {% endif %}
+                    </div>
+                  </td>
+                  <td class="align-middle text-center text-sm">
+                    <span class="text-secondary text-xs font-weight-bold">
+                      <i class="far fa-calendar-alt me-1"></i>{{ factura.fecha_emision|date:"d/m/Y" }}
+                      <br><small class="text-muted">{{ factura.fecha_emision|date:"H:i" }}</small>
+                    </span>
+                  </td>
+                  <td class="align-middle text-center">
+                    <span class="text-sm font-weight-bold text-success">
+                      ${{ factura.total|floatformat:2 }}
+                    </span>
+                  </td>
+                  <td class="align-middle text-center text-sm">
+                    {% if factura.estado == "Pagado" %}
+                      <span class="badge badge-sm bg-gradient-success">
+                        <i class="fas fa-check-circle me-1"></i>{{ factura.estado }}
+                      </span>
+                    {% elif factura.estado == "Pendiente" %}
+                      <span class="badge badge-sm bg-gradient-warning">
+                        <i class="fas fa-clock me-1"></i>{{ factura.estado }}
+                      </span>
+                    {% elif factura.estado == "Anulado" %}
+                      <span class="badge badge-sm bg-gradient-danger">
+                        <i class="fas fa-times-circle me-1"></i>{{ factura.estado }}
+                      </span>
+                    {% else %}
+                      <span class="badge badge-sm bg-gradient-secondary">{{ factura.estado }}</span>
+                    {% endif %}
+                  </td>
+                  <td class="align-middle">
+                    <div class="d-flex gap-2">
+                      <a href="{% url 'detalle_factura' factura.id %}" 
+                         class="btn btn-link text-secondary font-weight-bold text-xs px-0"
+                         data-bs-toggle="tooltip" title="Ver detalle">
+                        <i class="fas fa-eye me-1"></i>Ver Detalle
+                      </a>
+                      {% if factura.estado != "Anulado" %}
+                        <a href="" 
+                           class="btn btn-link text-primary font-weight-bold text-xs px-0"
+                           data-bs-toggle="tooltip" title="Editar">
+                          <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="#" 
+                           class="btn btn-link text-danger font-weight-bold text-xs px-0"
+                           onclick="confirmarAnulacion({{ factura.id }})"
+                           data-bs-toggle="tooltip" title="Anular">
+                          <i class="fas fa-trash"></i>
+                        </a>
+                      {% endif %}
+                      <a href="#" 
+                         class="btn btn-link text-info font-weight-bold text-xs px-0"
+                         onclick="descargarPDF({{ factura.id }})"
+                         data-bs-toggle="tooltip" title="Descargar PDF">
+                        <i class="fas fa-file-pdf"></i>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="6" class="text-center py-4">
+                    <div class="d-flex flex-column align-items-center">
+                      <i class="fas fa-file-invoice fa-3x text-secondary mb-3 opacity-50"></i>
+                      <h6 class="text-secondary">No hay facturas registradas</h6>
+                      <p class="text-sm text-secondary mb-0">Comienza creando una nueva venta</p>
+                      <a href="{% url 'nueva_venta' %}" class="btn btn-primary btn-sm mt-2">
+                        <i class="fas fa-plus me-1"></i>Nueva Venta
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Paginación (opcional) -->
+          {% if facturas.has_other_pages %}
+          <div class="px-3 pt-2">
+            <nav aria-label="Navegación de facturas">
+              <ul class="pagination pagination-sm justify-content-end mb-0">
+                {% if facturas.has_previous %}
+                  <li class="page-item">
+                    <a class="page-link" href="?page={{ facturas.previous_page_number }}">Anterior</a>
+                  </li>
+                {% endif %}
+                {% for num in facturas.paginator.page_range %}
+                  <li class="page-item {% if facturas.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                  </li>
+                {% endfor %}
+                {% if facturas.has_next %}
+                  <li class="page-item">
+                    <a class="page-link" href="?page={{ facturas.next_page_number }}">Siguiente</a>
+                  </li>
+                {% endif %}
+              </ul>
+            </nav>
+          </div>
+          {% endif %}
+        </div>
       </div>
     </div>
   </div>
 </div>
+
+<!-- JavaScript para funcionalidades adicionales -->
+<script>
+  // Función para filtrar la tabla
+  function filtrarTabla() {
+    const input = document.getElementById('buscarFactura');
+    const filter = input.value.toUpperCase();
+    const table = document.getElementById('tablaFacturas');
+    const rows = table.getElementsByTagName('tr');
+
+    for (let i = 1; i < rows.length; i++) {
+      const cells = rows[i].getElementsByTagName('td');
+      let found = false;
+      for (let j = 0; j < cells.length - 1; j++) {
+        const text = cells[j].textContent || cells[j].innerText;
+        if (text.toUpperCase().indexOf(filter) > -1) {
+          found = true;
+          break;
+        }
+      }
+      rows[i].style.display = found ? '' : 'none';
+    }
+  }
+
+  // Función para confirmar anulación
+  function confirmarAnulacion(id) {
+    if (confirm('¿Estás seguro de que deseas anular esta factura?')) {
+      window.location.href = '/facturas/anular/' + id + '/';
+    }
+  }
+
+  // Función para descargar PDF (simulada)
+  function descargarPDF(id) {
+    window.location.href = '/facturas/pdf/' + id + '/';
+  }
+
+  // Inicializar tooltips
+  document.addEventListener('DOMContentLoaded', function() {
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function(tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+  });
+</script>
+
+<!-- Estilos adicionales (opcional) -->
+<style>
+  .table tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+    transition: background-color 0.2s;
+  }
+  .badge i {
+    font-size: 0.7rem;
+  }
+  .btn-link {
+    text-decoration: none;
+  }
+  .btn-link:hover {
+    text-decoration: underline;
+  }
+  .dropdown-item {
+    font-size: 0.8rem;
+  }
+</style>
 {% endblock content %}

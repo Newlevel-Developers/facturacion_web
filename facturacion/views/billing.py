@@ -87,29 +87,32 @@ def crear_factura(request):
                 nueva_factura.total = total_final
                 nueva_factura.save()
 
-            return redirect('/facturas') # O a la vista de impresión
+            return redirect('/billing') # O a la vista de impresión
 
         except Exception as e:
             print(f"Error en facturación: {e}")
-            return redirect('/index')
+            return redirect('/billing')
             
-    return redirect('/facturas')
+    return redirect('/billing')
 
 def billing(request):
-    # Obtenemos las últimas 5 facturas
-    facturas = Factura.objects.all().order_by('-fecha_emision')[:5]
-    total_facturas = len(facturas)
+    hoy = timezone.localdate()
+    todas_las_facturas = Factura.objects.all()
+    facturas = Factura.objects.filter(fecha_emision__date=hoy).order_by('-fecha_emision')[:5]
     # Obtenemos los clientes para la sección "Billing Information"
     clientes_billing = Cliente.objects.filter(activo=True)[:3]
     
     # Calculamos algunos totales para las tarjetas superiores (opcional)
     total_ingresos = sum(f.total for f in Factura.objects.filter(estado='Pagado'))
-
+    status_paid = todas_las_facturas.filter(estado = 'PAGADO')
+    status_paids = status_paid.count()
     context = {
         'facturas': facturas,
         'clientes': clientes_billing,
         'total_ingresos': total_ingresos,
-        'total_facturas': total_facturas
+        'todas_las_facturas': todas_las_facturas,
+        'status_paids': status_paids
+        
     }
     return render(request, 'facturas/billing.html', context)
 

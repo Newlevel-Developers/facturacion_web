@@ -2,7 +2,7 @@ from django.contrib.auth import login as auth_login, logout
 from facturacion.forms import LoginForm
 from django.shortcuts import redirect
 from django.shortcuts import render
-
+from facturacion.models import Factura
 
 def login(request):
   if request.method == 'POST':
@@ -22,8 +22,10 @@ def login(request):
 
 
 def index(request):
+    facturas_recientes = Factura.objects.all().order_by('-fecha_emision')[:5]
     context = {
-        'segment': 'dashboard'
+        'segment': 'dashboard',
+        'facturas_recientes': facturas_recientes
     }
     return render(request, 'pages/index.html', context)
 

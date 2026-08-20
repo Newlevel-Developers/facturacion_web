@@ -14,7 +14,7 @@
                         <div class="col-8">
                             <div class="numbers">
                                 <p class="text-sm mb-0 text-uppercase font-weight-bold">Total Facturas</p>
-                                <h5 class="font-weight-bolder">{{ total_facturas|length}}</h5>
+                                <h5 class="font-weight-bolder">{{ todas_las_facturas|length}}</h5>
                             </div>
                         </div>
                         <div class="col-4 text-end">
@@ -34,7 +34,7 @@
                         <div class="col-8">
                             <div class="numbers">
                                 <p class="text-sm mb-0 text-uppercase font-weight-bold">Pagadas</p>
-                                <h5 class="font-weight-bolder">{{ facturas_pagadas|default:"0" }}</h5>
+                                <h5 class="font-weight-bolder">{{ status_paids }}</h5>
                             </div>
                         </div>
                         <div class="col-4 text-end">
@@ -230,11 +230,11 @@
                                 <tr>
                                     <td colspan="6" class="text-center py-5">
                                         <i class="fas fa-file-invoice fa-4x text-secondary mb-3 d-block"></i>
-                                        <h6 class="text-secondary">No hay facturas registradas</h6>
+                                        <h6 class="text-secondary">No hay facturas registradas hoy</h6>
                                         <p class="text-xs text-muted">Crea tu primera factura haciendo clic en "Nueva Factura"</p>
-                                        <button class="btn bg-gradient-primary mt-2" data-bs-toggle="modal" data-bs-target="#nuevaFactura">
+                                        <a href="{% url 'nueva_venta' %}" class="btn bg-gradient-primary mt-2" >
                                             <i class="fas fa-plus me-2"></i>Crear Factura
-                                        </button>
+                                        </a>
                                     </td>
                                 </tr>
                                 {% endfor %}

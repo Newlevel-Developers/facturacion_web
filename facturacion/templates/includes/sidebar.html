@@ -85,7 +85,14 @@
         <li class="nav-item">
           <a class="nav-link {% if 'billing' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url "billing" %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
-            <span class="nav-link-text ms-1">Facturacion</span>
+            <span class="nav-link-text ms-1">Facturas</span>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link {% if 'facturas' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url "facturas" %}">
+            <i class="material-symbols-rounded opacity-5">receipt_long</i>
+            <span class="nav-link-text ms-1">Historial de facturas</span>
           </a>
         </li>
         
@@ -96,13 +103,13 @@
         <li class="nav-item">
           <a class="nav-link {% if 'profile' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url "profile" %}">
             <i class="material-symbols-rounded opacity-5">person</i>
-            <span class="nav-link-text ms-1">Profile</span>
+            <span class="nav-link-text ms-1">Perfil</span>
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link text-dark" href="{% url "logout" %}">
             <i class="material-symbols-rounded opacity-5">login</i>
-            <span class="nav-link-text ms-1">Logout</span>
+            <span class="nav-link-text ms-1">Cerrar sesion</span>
           </a>
         </li>
         {% else %}
