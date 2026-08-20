@@ -6,6 +6,14 @@
     <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
       <h6 class="text-white mb-0"><i class="fas fa-file-invoice me-2"></i>Factura Electrónica: {{ factura.numero_factura }}</h6>
       <div>
+        {% if factura.estado != 'CANCELADO' and factura.estado != 'Cancelado' %}
+          <form action="{% url 'anular_factura' factura.id %}" method="POST" class="d-inline" onsubmit="return confirmarAnulacion(event, this);">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-outline-danger me-1">
+              <i class="fas fa-ban me-1"></i> Anular Factura
+            </button>
+          </form>
+        {% endif %}
         <button onclick="window.print();" class="btn btn-sm btn-outline-light me-1">
           <i class="fas fa-print me-1"></i> Imprimir / PDF
         </button>

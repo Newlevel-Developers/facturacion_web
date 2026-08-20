@@ -3,6 +3,7 @@ from django.db import transaction
 from django.utils import timezone
 from decimal import Decimal
 from facturacion.models import Factura, DetalleFactura, Producto, Cliente
+from  django.contrib import messages
 
 def facturas(request):
     todas_las_facturas = Factura.objects.all().order_by('-fecha_emision')
@@ -128,3 +129,26 @@ def detalle_factura(request, factura_id):
         'detalles': detalles
     }
     return render(request, 'facturas/detalle_factura.html', context)
+
+def anular_factura(request, factura_id):
+    factura = get_object_or_404(Factura, id=factura_id)
+
+    # Validar que no esté anulada previamente
+    if factura.estado == 'CANCELADO':
+        messages.warning(request, "Esta factura ya se encuentra anulada.")
+        return redirect('facturas')
+
+    # 1. Revertir el Stock de los productos
+    detalles = factura.detallefactura_set.all()  # Ajusta si tu related_name es distinto
+    for item in detalles:
+        producto = item.producto
+        producto.stock += item.cantidad  # O 'stock' / 'cantidad_disponible' según tu modelo Producto
+        producto.save()
+
+    # 2. Cambiar el estado de la factura
+    factura.estado = 'CANCELADO'
+    factura.save()
+
+    # 3. Notificar al usuario
+    messages.success(request, f"La factura {factura.numero_factura} fue anulada y el inventario se reabasteció correctamente.")
+    return redirect('facturas')

@@ -41,6 +41,7 @@ urlpatterns = [
     path('crear_factura/', views.crear_factura, name="crear_factura"),
     path('detalle_factura/<int:factura_id>/', views.detalle_factura, name="detalle_factura"),
     path('billing/', views.billing, name="billing"),
+    path('anular_factura/<int:factura_id>/', views.anular_factura , name='anular_factura'),
 
     # Compras / Trazabilidad de entrada
     path('registrar_compra/', views.registrar_compra, name="registrar_compra"),
