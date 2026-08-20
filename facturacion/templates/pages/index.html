@@ -263,15 +263,19 @@
                     <p class="text-xs font-weight-bold mb-0 text-success">${{ factura.total }}</p>
                   </td>
                   <td class="text-center">
-                    <span class="badge {% if factura.estado == 'Pagada' %}bg-gradient-success{% elif factura.estado == 'Pendiente' %}bg-gradient-warning{% else %}bg-gradient-danger{% endif %}">
-                      {% if factura.estado == 'Pagada' %}
-                        <i class="fas fa-check-circle me-1"></i>Pagada
-                      {% elif factura.estado == 'Pendiente' %}
-                        <i class="fas fa-clock me-1"></i>Pendiente
+                      {% if factura.get_estado_display == 'Pagado' %}
+                            <span class="badge bg-gradient-success">
+                              <i class="fas fa-check-circle me-1"></i>Pagado
+                            </span>
+                      {% elif factura.get_estado_display == 'Pendiente' %}
+                              <span class="badge bg-gradient-warning">
+                                <i class="fas fa-clock me-1"></i>Pendiente
+                              </span>
                       {% else %}
-                        <i class="fas fa-times-circle me-1"></i>Cancelada
+                              <span class="badge bg-gradient-danger">
+                                <i class="fas fa-times-circle me-1"></i>Cancelado
+                              </span>
                       {% endif %}
-                    </span>
                   </td>
                   <td class="text-center">
                     <a href="#" class="btn btn-link text-dark px-2 mb-0" title="Ver">
