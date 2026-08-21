@@ -5,7 +5,7 @@ from decimal import Decimal
 from django.contrib.auth.decorators import login_required, permission_required
 
 @login_required
-@permission_required('facturacion.view_factura', raise_exception=True)
+@permission_required('facturacion.sele_order', raise_exception=True)
 def nueva_venta(request):
     productos_disponibles = Producto.objects.filter(activo=True, stock__gt=0)
     clientes = Cliente.objects.all()
@@ -18,7 +18,7 @@ def nueva_venta(request):
     }
     return render(request, 'pages/ventas.html', context)
 
-@permission_required('facturacion.add_factura', raise_exception=True)
+@permission_required('facturacion.sele_order', raise_exception=True)
 def registrar_compra(request):
     if request.method == 'POST':
         producto_id = request.POST.get('producto_id')

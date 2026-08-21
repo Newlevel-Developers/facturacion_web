@@ -25,6 +25,9 @@ class Factura(models.Model):
 
     class Meta:
         db_table = 'facturas_factura'
+        permissions = [
+            ("sele_order", "vista de ordenes de ventas"),
+        ]
 
 class DetalleFactura(models.Model):
     cantidad = models.IntegerField()

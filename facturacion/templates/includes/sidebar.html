@@ -72,7 +72,7 @@
         </li>
         {% endif %}
         
-        {% if perms.facturacion.view_facturas %}
+        {% if perms.facturacion.sele_order %}
         <li class="nav-item">
           <a class="nav-link {% if 'nueva_venta' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url "nueva_venta" %}">
             <i class="material-symbols-rounded opacity-5">bar_chart</i>
