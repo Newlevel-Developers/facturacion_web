@@ -63,7 +63,7 @@
         </li>
         {% endif %}
 
-        {% if perms.facturacion.view_productos %}
+        {% if perms.facturacion.view_producto %}
         <li class="nav-item">
           <a class="nav-link {% if 'productos' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url "productos" %}">
             <i class="material-symbols-rounded opacity-5">inventory_2</i>
@@ -91,20 +91,22 @@
           </a>
         </li>
         {% endif %}
+        {% if perms.facturacion.view_facturas %}
         <li class="nav-item">
           <a class="nav-link {% if 'billing' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url "billing" %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">Facturas</span>
           </a>
         </li>
-
+        {% endif %}
+        {% if perms.facturacion.facturas %}
         <li class="nav-item">
           <a class="nav-link {% if 'facturas' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url "facturas" %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">Historial de facturas</span>
           </a>
         </li>
-        
+        {% endif %}
         <li class="nav-item mt-3">
           <h6 class="ps-4 ms-2 text-uppercase text-xs text-dark font-weight-bolder opacity-5">Account pages</h6>
         </li>

@@ -16,11 +16,13 @@
               <h6 class="text-white text-uppercase m-0">Gestión de Clientes</h6>
               <span class="badge bg-white text-primary ms-3">{{ clientes|length }}</span>
             </div>
+            {% if perms.facturacion.add_cliente %}
             <div class="d-flex gap-2">
               <button class="btn btn-white btn-sm mb-0" type="button" data-bs-toggle="modal" data-bs-target="#clientes">
                 <i class="fas fa-user-plus me-2"></i>Registrar Cliente
               </button>
             </div>
+            {% endif %}
           </div>
         </div>
 

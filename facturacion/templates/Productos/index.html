@@ -17,23 +17,29 @@
               <span class="badge bg-white text-primary ms-3">{{ productos|length }}</span>
             </div>
             <div class="d-flex gap-2">
+              {% if perms.facturacion.view_categoria %}
               <div class="dropdown d-inline-block">
                 <button class="btn btn-white btn-sm mb-0 dropdown-toggle" type="button" id="dropdownCategorias" data-bs-toggle="dropdown" aria-expanded="false">
                   <i class="fas fa-folder me-2"></i>Categorías
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="dropdownCategorias">
-                  <!-- Opción 1: Registrar Categoría -->
+                  {% if perms.facturacion.add_categoria %}
                   <li>
                     <a class="dropdown-item d-flex align-items-center" href="#" data-bs-toggle="modal" data-bs-target="#modalRegistrarCategoria">
                       <i class="fas fa-plus text-success me-2"></i> Registrar Categoría
                     </a>
                   </li>
-                  <!-- Opción 2: Editar Categoría -->
+                  {% endif %}
+                  
+                  {% if perms.facturacion.change_categoria %}
                   <li>
                     <a class="dropdown-item d-flex align-items-center" href="#" data-bs-toggle="modal" data-bs-target="#modalEditarCategoria">
                       <i class="fas fa-pencil-alt text-info me-2"></i> Editar Categoría
                     </a>
                   </li>
+                  {% endif %}
+                  
+                  {% if perms.facturacion.delete_categoria %}
                   <li><hr class="dropdown-divider"></li>
                   <!-- Opción 3: Eliminar Categoría -->
                   <li>
@@ -41,11 +47,15 @@
                       <i class="fas fa-trash me-2"></i> Eliminar Categoría
                     </a>
                   </li>
+                  {% endif %}
                 </ul>
               </div>
+              {% endif %}
+              {% if perms.facturacion.add_producto %}
               <button class="btn btn-white btn-sm mb-0" type="button" data-bs-toggle="modal" data-bs-target="#modalProducto">
                 <i class="fas fa-plus me-2"></i>Nuevo Producto
               </button>
+              {% endif %}
             </div>
           </div>
         </div>
@@ -232,14 +242,18 @@
 
                   <!-- ===== FOOTER CON ACCIONES ===== -->
                   <div class="card-footer bg-transparent border-0 d-flex gap-2 pt-0">
+                    {% if perms.facturacion.change_producto %}
                     <button class="btn btn-outline-primary btn-sm flex-grow-1" 
                             data-bs-toggle="modal" 
                             data-bs-target="#EditarProductoModal{{ producto.id }}">
                       <i class="fas fa-edit me-1"></i>Editar
                     </button>
+                    {% endif %}
+                    {% if perms.facturacion.delete_producto %}
                     <button type="button" class="btn btn-danger btn-sm" onclick="confirmarEliminar('{{ producto.id }}', '{{ producto.nombre|escapejs }}')">
                         <i class="fas fa-trash-alt"></i>
                     </button>
+                    {% endif %}
                   </div>
                 </div>
               </div>
