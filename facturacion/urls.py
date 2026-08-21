@@ -36,6 +36,12 @@ urlpatterns = [
     path('clientes/', views.clientes, name="clientes"),
     path('registrar_clientes/', views.registrar_clientes, name="registrar_clientes"),
     
+    #Proveedor
+    path('proveedores/', views.proveedores, name='proveedores'),
+    path('proveedores/crear/', views.crear_proveedor, name='crear_proveedor'),
+    path('proveedores/editar/<int:id>/', views.editar_proveedor, name='editar_proveedor'),
+    path('proveedores/eliminar/<int:id>/', views.eliminar_proveedor, name='eliminar_proveedor'),
+    
     # Facturación
     path('facturas/', views.facturas, name="facturas"),
     path('crear_factura/', views.crear_factura, name="crear_factura"),

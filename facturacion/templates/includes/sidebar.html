@@ -63,6 +63,15 @@
         </li>
         {% endif %}
 
+        {% if perms.facturacion.view_proveedor %}
+        <li class="nav-item">
+          <a class="nav-link {% if 'proveedores' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url "proveedores" %}">
+            <i class="material-symbols-rounded opacity-5">people</i>
+            <span class="nav-link-text ms-1">Proveedor</span>
+          </a>
+        </li>
+        {% endif %}
+
         {% if perms.facturacion.view_producto %}
         <li class="nav-item">
           <a class="nav-link {% if 'productos' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url "productos" %}">
