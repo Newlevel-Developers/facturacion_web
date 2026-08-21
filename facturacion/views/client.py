@@ -21,6 +21,7 @@ def clientes(request):
     }
     return render(request, 'Clientes/index.html', context)
 
+@permission_required('facturacion.add_cliente', raise_exception=True)
 def registrar_clientes(request):
     if request.method == 'POST':
         id_tipo_doc = request.POST.get('tipo_documento')

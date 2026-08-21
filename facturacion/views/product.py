@@ -2,23 +2,23 @@ from django.shortcuts import render, redirect,get_object_or_404
 from facturacion.models import Producto, Categoria  
 from django.contrib import messages
 from django.db.models import F
+from django.contrib.auth.decorators import login_required, permission_required
+
+@login_required
+@permission_required('facturacion.view_producto', raise_exception=True)
 def productos(request):
-    
     productos = Producto.objects.all()   
-    categorias = Categoria.objects.all()  
     productos_activos =  productos.filter(activo=True)
     productos_stock_bajo = productos.filter(stock__lte=F('stock_minimo'))
-    total_categorias = categorias.count()
     context = {
         'segment': 'productos',
         'productos': productos,
         'productos_activos': productos_activos, 
         'productos_stock_bajo': productos_stock_bajo,  
-        'total_categorias': total_categorias,
-        'categorias': categorias
     }
     return render(request, 'Productos/index.html', context)
 
+@permission_required('facturacion.add_producto', raise_exception=True)
 def crear_producto(request):
     if request.method == 'POST':
         # 1. Captura de todos los campos del formulario
@@ -60,6 +60,7 @@ def crear_producto(request):
     else:
         return redirect('/index')
 
+@permission_required('facturacion.change_producto', raise_exception=True)
 def editar_producto(request, id):
     # 1. Obtenemos el producto a editar
     producto = get_object_or_404(Producto, id=id)
@@ -107,12 +108,24 @@ def editar_producto(request, id):
     # Si la petición no es POST, simplemente redirigimos a la lista
     return redirect('productos')
 
+@permission_required('facturacion.delete_producto', raise_exception=True)
 def eliminar_producto(request, id):
     producto = get_object_or_404(Producto, id=id)
     producto.delete()
     messages.success(request, 'Producto eliminado con éxito.')
     return redirect('productos')
 
+@permission_required('facturacion.view_categoria', raise_exception=True)
+def categoria(request):
+    categorias = Categoria.objects.all()
+    total_categorias = categorias.count()
+    context = { 
+            'total_categorias': total_categorias,
+            'categorias': categorias
+        }
+    return render(request, 'Productos/index.html', context)
+    
+@permission_required('facturacion.add_categoria', raise_exception=True)
 def crear_categoria(request):
     if request.method == 'POST':
 
@@ -133,6 +146,7 @@ def crear_categoria(request):
     else:
             return redirect('/index')       
 
+@permission_required('facturacion.change_categoria', raise_exception=True)
 def editar_categoria(request):
     if request.method == 'POST':
         # 1. Obtenemos el ID de la categoría enviado por el modal
@@ -154,7 +168,8 @@ def editar_categoria(request):
         return redirect('productos')
 
     return redirect('productos')
-    
+
+@permission_required('facturacion.delete_categoria', raise_exception=True)
 def eliminar_categoria(request):
     if request.method == 'POST':
         categoria_id = request.POST.get('categoria_id')

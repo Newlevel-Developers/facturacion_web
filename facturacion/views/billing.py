@@ -4,7 +4,33 @@ from django.utils import timezone
 from decimal import Decimal
 from facturacion.models import Factura, DetalleFactura, Producto, Cliente
 from  django.contrib import messages
+from django.contrib.auth.decorators import login_required, permission_required
 
+@login_required
+@permission_required('facturacion.view_factura', raise_exception=True)
+def billing(request):
+    hoy = timezone.localdate()
+    todas_las_facturas = Factura.objects.all()
+    facturas = Factura.objects.filter(fecha_emision__date=hoy).order_by('-fecha_emision')[:5]
+    # Obtenemos los clientes para la sección "Billing Information"
+    clientes_billing = Cliente.objects.filter(activo=True)[:3]
+    
+    # Calculamos algunos totales para las tarjetas superiores (opcional)
+    total_ingresos = sum(f.total for f in Factura.objects.filter(estado='Pagado'))
+    status_paid = todas_las_facturas.filter(estado = 'PAGADO')
+    status_paids = status_paid.count()
+    context = {
+        'facturas': facturas,
+        'clientes': clientes_billing,
+        'total_ingresos': total_ingresos,
+        'todas_las_facturas': todas_las_facturas,
+        'status_paids': status_paids
+        
+    }
+    return render(request, 'facturas/billing.html', context)
+
+@login_required
+@permission_required('facturacion.view_factura', raise_exception=True)
 def facturas(request):
     todas_las_facturas = Factura.objects.all().order_by('-fecha_emision')
     context = {
@@ -12,7 +38,8 @@ def facturas(request):
         'facturas': todas_las_facturas
     }
     return render(request, 'facturas/facturas_list.html', context)
-    
+
+@permission_required('facturacion.add_factura', raise_exception=True)
 def crear_factura(request):
     if request.method == 'POST':
         # 1. Obtener datos básicos
@@ -95,27 +122,6 @@ def crear_factura(request):
             return redirect('/billing')
             
     return redirect('/billing')
-
-def billing(request):
-    hoy = timezone.localdate()
-    todas_las_facturas = Factura.objects.all()
-    facturas = Factura.objects.filter(fecha_emision__date=hoy).order_by('-fecha_emision')[:5]
-    # Obtenemos los clientes para la sección "Billing Information"
-    clientes_billing = Cliente.objects.filter(activo=True)[:3]
-    
-    # Calculamos algunos totales para las tarjetas superiores (opcional)
-    total_ingresos = sum(f.total for f in Factura.objects.filter(estado='Pagado'))
-    status_paid = todas_las_facturas.filter(estado = 'PAGADO')
-    status_paids = status_paid.count()
-    context = {
-        'facturas': facturas,
-        'clientes': clientes_billing,
-        'total_ingresos': total_ingresos,
-        'todas_las_facturas': todas_las_facturas,
-        'status_paids': status_paids
-        
-    }
-    return render(request, 'facturas/billing.html', context)
 
 def detalle_factura(request, factura_id):
     # Buscamos la factura o devolvemos 404 si no existe
