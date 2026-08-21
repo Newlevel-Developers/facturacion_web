@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group, Permission
 from django.contrib import messages
-from django.contrib.auth.models import Group, Permission
+from django.contrib.auth.decorators import login_required, permission_required
 
 
+@login_required
+@permission_required('auth.view_user', raise_exception=True)
 def usuarios(request):
     usuarios = User.objects.all()
     roles = Group.objects.all()
@@ -19,11 +21,14 @@ def usuarios(request):
         'usuarios_activos': usuarios_activos,
         'ultimo_registro': ultimo_registro,
         'roles': roles,
-        'permisos':permisos,
+        'permisos': permisos,
         'usuarios': usuarios
     }
     return render(request, 'pages/usuarios.html', context)
 
+
+@login_required
+@permission_required('auth.add_user', raise_exception=True)
 def registrar_usuario(request):
     if request.method == 'POST':
         first_name = request.POST.get('first_name')
@@ -31,10 +36,6 @@ def registrar_usuario(request):
         email = request.POST.get('email')
         username = request.POST.get('username')
         password = request.POST.get('password')
-        
-        # Obtenemos los IDs o el ID del rol/grupo seleccionado desde el formulario
-        # Se usa getlist si en el HTML permites varios roles (<select multiple>) 
-        # o get si es un select de un solo rol.
         role_id = request.POST.get('role_id') 
 
         if not all([username, email, password, first_name, last_name]):
@@ -42,7 +43,6 @@ def registrar_usuario(request):
             return redirect('/usuarios')
 
         try:
-            # 1. Crear el usuario
             new_user = User.objects.create_user(
                 username=username, 
                 password=password, 
@@ -51,11 +51,10 @@ def registrar_usuario(request):
                 last_name=last_name
             )
 
-            # 2. Asignar el Rol (Grupo)
             if role_id:
                 try:
                     rol = Group.objects.get(id=role_id)
-                    new_user.groups.add(rol)  # Agrega el grupo/rol al usuario
+                    new_user.groups.add(rol)
                 except Group.DoesNotExist:
                     messages.warning(request, "Usuario creado, pero el rol seleccionado no existe.")
 
@@ -68,10 +67,13 @@ def registrar_usuario(request):
 
     return redirect('/usuarios')
 
+
+@login_required
+@permission_required('auth.change_user', raise_exception=True)
 def editar_usuario(request):
     if request.method == 'POST':
         user_id = request.POST.get('user_id')
-        role_id = request.POST.get('role_id')  # Captura el nuevo rol seleccionado
+        role_id = request.POST.get('role_id')
         
         try:
             user = User.objects.get(id=user_id)
@@ -80,24 +82,19 @@ def editar_usuario(request):
             user.email = request.POST.get('email')
             user.username = request.POST.get('username')
             
-            # Validación
             if not all([user.first_name, user.last_name, user.email, user.username]):
                 messages.error(request, "Todos los campos son obligatorios.")
                 return redirect('/usuarios')
 
-            # 1. Guardar cambios básicos del usuario
             user.save()
 
-            # 2. Actualizar el Rol (Grupo)
             if role_id:
                 try:
                     rol = Group.objects.get(id=role_id)
-                    # user.groups.set([rol]) limpia los roles anteriores y asigna el nuevo
-                    user.groups.set([rol]) 
+                    user.groups.set([rol])
                 except Group.DoesNotExist:
                     messages.warning(request, "El rol seleccionado no existe.")
             else:
-                # Si no se seleccionó ningún rol, limpia los roles del usuario
                 user.groups.clear()
 
             messages.success(request, '¡Usuario y rol actualizados correctamente!')
@@ -112,29 +109,30 @@ def editar_usuario(request):
     
     return redirect('/usuarios')
 
+
+@login_required
 def editar_perfil(request):
     pass
 
+
+@login_required
+@permission_required('auth.add_group', raise_exception=True)
 def crear_rol(request):
     if request.method == 'POST':
         nombre = request.POST.get('name')
-        # getlist obtiene todos los IDs de los permisos seleccionados
         permisos_ids = request.POST.getlist('permissions') 
 
         if not nombre:
             messages.error(request, "El nombre del rol es obligatorio.")
             return redirect('/usuarios')
 
-        # Verificar si el rol ya existe
         if Group.objects.filter(name__iexact=nombre).exists():
             messages.warning(request, f"El rol '{nombre}' ya existe.")
             return redirect('/usuarios')
 
         try:
-            # Crear el grupo (rol)
             nuevo_rol = Group.objects.create(name=nombre)
             
-            # Asignar los permisos seleccionados al rol
             if permisos_ids:
                 permisos = Permission.objects.filter(id__in=permisos_ids)
                 nuevo_rol.permissions.set(permisos)
@@ -147,6 +145,9 @@ def crear_rol(request):
 
     return redirect('/usuarios')
 
+
+@login_required
+@permission_required('auth.change_group', raise_exception=True)
 def editar_rol(request):
     if request.method == 'POST':
         role_id = request.POST.get('role_id')
@@ -160,7 +161,6 @@ def editar_rol(request):
         try:
             rol = Group.objects.get(id=role_id)
             
-            # Verificar nombre duplicado
             if Group.objects.filter(name__iexact=nuevo_nombre).exclude(id=role_id).exists():
                 messages.warning(request, f"Ya existe otro rol llamado '{nuevo_nombre}'.")
                 return redirect('/usuarios')
@@ -168,7 +168,6 @@ def editar_rol(request):
             rol.name = nuevo_nombre
             rol.save()
 
-            # Actualizar la lista de permisos (reemplaza los anteriores por los nuevos)
             permisos = Permission.objects.filter(id__in=permisos_ids)
             rol.permissions.set(permisos)
 
@@ -182,6 +181,9 @@ def editar_rol(request):
 
     return redirect('/usuarios')
 
+
+@login_required
+@permission_required('auth.delete_group', raise_exception=True)
 def eliminar_rol(request):
     if request.method == 'POST':
         role_id = request.POST.get('role_id')

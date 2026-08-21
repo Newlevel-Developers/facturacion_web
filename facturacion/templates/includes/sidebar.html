@@ -62,28 +62,35 @@
           </a>
         </li>
         {% endif %}
+
+        {% if perms.facturacion.view_productos %}
         <li class="nav-item">
           <a class="nav-link {% if 'productos' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url "productos" %}">
             <i class="material-symbols-rounded opacity-5">inventory_2</i>
             <span class="nav-link-text ms-1">Productos</span>
           </a>
         </li>
+        {% endif %}
+        
+        {% if perms.facturacion.view_facturas %}
         <li class="nav-item">
           <a class="nav-link {% if 'nueva_venta' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url "nueva_venta" %}">
             <i class="material-symbols-rounded opacity-5">bar_chart</i>
             <span class="nav-link-text ms-1">Venta</span>
           </a>
         </li>
-
+        {% endif %}
         <li class="nav-item mt-3">
           <h6 class="ps-4 ms-2 text-uppercase text-xs text-dark font-weight-bolder opacity-5">UI pages</h6>
         </li>
+        {% if perms.auth.view_user %}
         <li class="nav-item">
           <a class="nav-link {% if 'usuarios' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url "usuarios" %}">
             <i class="material-symbols-rounded opacity-5">table_view</i>
             <span class="nav-link-text ms-1">usuarios</span>
           </a>
         </li>
+        {% endif %}
         <li class="nav-item">
           <a class="nav-link {% if 'billing' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url "billing" %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
