@@ -7,7 +7,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('', RedirectView.as_view(url='login/', permanent=False), name='index'),
-    path('index', views.index, name="index"),
+    path('dashboard_facturacion', views.dashboard_facturacion, name="dashboard_facturacion"),
     
     #Usuarios
     path('usuarios/', views.usuarios, name="usuarios"),
