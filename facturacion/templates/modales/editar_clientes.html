@@ -1,0 +1,77 @@
+<div class="modal fade" id="modalEditarCliente" tabindex="-1" aria-labelledby="modalEditarClienteLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content shadow-lg border-0">
+      <div class="modal-header bg-warning text-white">
+        <h5 class="modal-title" id="modalEditarClienteLabel">
+          <i class="fas fa-user-edit me-2"></i> Editar Cliente
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      
+      <form id="formEditarCliente" method="post" action="">
+        {% csrf_token %}
+        <div class="modal-body p-4">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="edit_tipo_doc" class="form-label fw-bold">Tipo de Documento</label>
+              <select name="tipo_documento" class="form-select" id="edit_tipo_doc" required>
+                <option value="" disabled>Seleccione...</option>
+                {% for tipo in tipos_documento %}
+                  <option value="{{ tipo.id }}">{{ tipo.tipo }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="edit_num_doc" class="form-label fw-bold">Nº de Documento</label>
+              <input type="text" name="numero_documento" class="form-control" id="edit_num_doc" placeholder="Ej: 12345678" required>
+            </div>
+
+            <div class="col-md-12 mb-3">
+              <label for="edit_nombre_apellido" class="form-label fw-bold">Nombre y Apellido</label>
+              <input type="text" name="nombre_apellido" class="form-control" id="edit_nombre_apellido" placeholder="Nombre completo del cliente" required>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="edit_email" class="form-label fw-bold">Correo Electrónico</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                <input type="email" name="email" class="form-control" id="edit_email" placeholder="correo@ejemplo.com" required>
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="edit_telefono" class="form-label fw-bold">Teléfono</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                <input type="tel" name="telefono" class="form-control" id="edit_telefono" placeholder="Ej: +51 987654321">
+              </div>
+            </div>
+
+            <div class="col-md-12 mb-3">
+              <label for="edit_direccion" class="form-label fw-bold">Dirección</label>
+              <input type="text" name="direccion" class="form-control" id="edit_direccion" placeholder="Calle, Av, Distrito...">
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="edit_status" class="form-label fw-bold text-secondary">
+                <i class="fas fa-toggle-on me-1"></i> Estado
+              </label>
+              <select name="activo" class="form-select border-primary-soft" id="edit_status">
+                <option value="1">Activo</option>
+                <option value="0">Inactivo</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-warning text-white px-4 shadow-sm">
+            <i class="fas fa-sync-alt me-1"></i> Actualizar Cliente
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

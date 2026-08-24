@@ -215,7 +215,7 @@
                                         <a href="{% url 'detalle_factura' factura.id %}" class="btn btn-link text-dark px-2 mb-0" data-bs-toggle="tooltip" title="Ver">
                                             <i class="fas fa-eye text-sm"></i>
                                         </a>
-                                        <a href="#" class="btn btn-link text-dark px-2 mb-0" data-bs-toggle="tooltip" title="PDF">
+                                        <a href="{% url 'generar_factura_pdf' factura.id %}" target="_blank" class="btn btn-link text-dark px-2 mb-0" data-bs-toggle="tooltip" title="PDF">
                                             <i class="fas fa-file-pdf text-sm text-danger"></i>
                                         </a>
                                         <a href="#" class="btn btn-link text-dark px-2 mb-0" data-bs-toggle="tooltip" title="Editar">

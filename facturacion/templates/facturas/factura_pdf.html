@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Factura #{{ factura.numero_factura }}</title>
+    <style>
+        @page {
+            size: letter;
+            margin: 1.2cm;
+        }
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 10px;
+            color: #2b2b2b;
+        }
+        
+        /* Tablas de estructura */
+        .w-100 { width: 100%; }
+        .table-no-border, .table-no-border td {
+            border: none;
+            padding: 0;
+        }
+        
+        /* Encabezado */
+        .brand-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+        .invoice-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #2563eb;
+            text-align: right;
+        }
+        .text-muted { color: #64748b; }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+
+        /* Cuadro de información del cliente */
+        .client-card {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 10px;
+            margin-top: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        /* Tabla de productos */
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .items-table th {
+            background-color: #1e293b;
+            color: #ffffff;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 9px;
+            padding: 7px 8px;
+            border: 1px solid #1e293b;
+        }
+        .items-table td {
+            padding: 8px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 10px;
+        }
+
+        /* Totales ordenados sin float */
+        .totals-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .totals-table td {
+            padding: 4px 8px;
+        }
+        .total-row {
+            border-top: 2px solid #0f172a;
+            font-size: 12px;
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        /* Badge de estado */
+        .status-badge {
+            background-color: #dcfce7;
+            color: #15803d;
+            padding: 3px 8px;
+            font-weight: bold;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ENCABEZADO Y DATOS DE LA EMPRESA -->
+    <table class="w-100 table-no-border">
+        <tr>
+            <td width="60%" style="vertical-align: top;">
+                <div class="brand-title">{{ empresa.nombre }}</div>
+                <span class="text-muted">
+                    <strong>RIF:</strong> {{ empresa.rif }}<br>
+                    <strong>Web:</strong> {{ empresa.web }}<br>
+                    <strong>Email:</strong> {{ empresa.email }}
+                </span>
+            </td>
+            <td width="40%" style="vertical-align: top;" class="text-right">
+                <div class="invoice-title">FACTURA</div>
+                <div style="margin-top: 5px;">
+                    <strong>N°:</strong> #{{ factura.numero_factura }}<br>
+                    <strong>Fecha:</strong> {{ factura.fecha_emision|date:"d/m/Y H:i" }}<br>
+                    <span class="text-muted">Estado:</span> 
+                    <span class="status-badge">{{ factura.get_estado_display }}</span>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <!-- INFORMACIÓN DEL CLIENTE -->
+    <div class="client-card">
+        <table class="w-100 table-no-border">
+            <tr>
+                <td width="50%">
+                    <strong>CLIENTE:</strong> {{ factura.cliente.nombre }} {{ factura.cliente.apellidos }}<br>
+                    <span class="text-muted"><strong>Documento ID:</strong> {{ factura.cliente.numero_documento|default:"N/A" }}</span>
+                </td>
+                <td width="50%">
+                    <span class="text-muted"><strong>Email:</strong> {{ factura.cliente.email|default:"N/A" }}</span><br>
+                    <span class="text-muted"><strong>Teléfono:</strong> {{ factura.cliente.telefono|default:"N/A" }}</span>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- TABLA DE PRODUCTOS (Anchos definidos estrictamente) -->
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th width="50%" style="text-align: left;">Producto / Descripción</th>
+                <th width="15%" class="text-center">Cantidad</th>
+                <th width="17%" class="text-right">Precio Unit.</th>
+                <th width="18%" class="text-right">Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in detalles %}
+            <tr>
+                <td>{{ item.producto.nombre }}</td>
+                <td class="text-center">{{ item.cantidad }}</td>
+                <td class="text-right">${{ item.precio_unitario }}</td>
+                <td class="text-right">${{ item.subtotal }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- SECCIÓN DE TOTALES (Estructurada en 2 columnas para alineación limpia) -->
+    <table class="w-100 table-no-border" style="margin-top: 10px;">
+        <tr>
+            <!-- Columna Izquierda (Notas / Mensaje de agradecimiento) -->
+            <td width="55%" style="vertical-align: top; padding-right: 20px;">
+                <span class="text-muted">
+                    <strong>Notas:</strong><br>
+                    Gracias por su compra. Conserve este comprobante para cualquier reclamo o soporte referente a su pedido.
+                </span>
+            </td>
+
+            <!-- Columna Derecha (Tabla de Totales) -->
+            <td width="45%" style="vertical-align: top;">
+                <table class="totals-table">
+                    <tr>
+                        <td class="text-right"><strong>Subtotal:</strong></td>
+                        <td class="text-right" width="40%">${{ factura.subtotal }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-right"><strong>IGV / IVA (16%):</strong></td>
+                        <td class="text-right">${{ factura.igv }}</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td class="text-right" style="padding-top: 6px;">Total:</td>
+                        <td class="text-right" style="padding-top: 6px;">${{ factura.total }}</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>

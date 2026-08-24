@@ -18,7 +18,7 @@ def proveedores(request):
         'total_activos': proveedores_activos.count(),
         'total_proveedores': todos_los_proveedores.count(),
     }
-    return render(request, 'Proveedores/proveedor.html', context)
+    return render(request, 'proveedor/proveedor.html', context)
 
 
 # ==========================================

@@ -228,18 +228,23 @@
                   
                   <td class="align-middle text-center">
                     <div class="d-flex justify-content-center gap-1">
-                      <button class="btn btn-link text-primary px-2 mb-0" title="Editar cliente" data-bs-toggle="modal" data-bs-target="#EditarClienteModal{{ cliente.id }}">
-                        <i class="fas fa-edit text-sm"></i>
+                      <button class="btn btn-link text-primary px-2 mb-0" 
+                              data-bs-toggle="modal" 
+                              data-bs-target="#modalEditarCliente"
+                              onclick="cargarDatosCliente('{{ cliente.id }}', '{{ cliente.tipo_documento.id }}', '{{ cliente.numero_documento }}', '{{ cliente.nombre|escapejs }}', '{{ cliente.email }}', '{{ cliente.telefono }}', '{{ cliente.direccion|escapejs }}', {{ cliente.activo|lower }})">
+                          <i class="fas fa-edit text-sm"></i>
                       </button>
-                      <button class="btn btn-link text-danger px-2 mb-0" title="Eliminar cliente" onclick="confirmarEliminar('{{ cliente.id }}', '{{ cliente.nombre }} {{ cliente.apellidos }}')">
-                        <i class="fas fa-trash-alt text-sm"></i>
+                      <button class="btn btn-link text-danger px-2 mb-0" 
+                              title="Eliminar cliente" 
+                              onclick="confirmarEliminar('{{ cliente.id }}', '{{ cliente.nombre|escapejs }}')">
+                          <i class="fas fa-trash-alt text-sm"></i>
                       </button>
                     </div>
                   </td>
                 </tr>
                 
                 <!-- ===== MODAL EDITAR CLIENTE ===== -->
-                {% comment %} {% include 'modales/editar_cliente.html' %} {% endcomment %}
+                {% include 'modales/editar_clientes.html' %}
                 
                 {% empty %}
                 <tr>
@@ -367,25 +372,28 @@ document.addEventListener('DOMContentLoaded', function() {
         filtrarClientes();
     });
 
-    // === CONFIRMAR ELIMINACIÓN ===
     window.confirmarEliminar = function(id, nombre) {
+        // Si SweetAlert2 no está cargado por alguna razón, usamos el confirm nativo como respaldo
+        if (typeof Swal === 'undefined') {
+            if (confirm(`¿Estás seguro de que deseas eliminar al cliente "${nombre}"?`)) {
+                window.location.href = `/eliminar_cliente/${id}/`;
+            }
+            return;
+        }
+
         Swal.fire({
             title: '¿Eliminar cliente?',
-            html: `Estás a punto de eliminar a <strong>${nombre}</strong>`,
+            html: `Estás a punto de eliminar a <strong>${nombre}</strong>.`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
+            cancelButtonColor: '#6c757d',
             confirmButtonText: 'Sí, eliminar',
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Aquí iría la lógica de eliminación
-                Swal.fire(
-                    '¡Eliminado!',
-                    `El cliente ${nombre} ha sido eliminado.`,
-                    'success'
-                );
+                // Forzar redirección
+                window.location.assign(`/eliminar_cliente/${id}/`);
             }
         });
     };
@@ -412,6 +420,22 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });
+
+function cargarDatosCliente(id, tipoDocId, numDoc, nombre, email, telefono, direccion, activo) {
+    // 1. Asignar la URL del action apuntando al cliente específico
+    document.getElementById('formEditarCliente').action = `/editar_cliente/${id}/`;
+
+    // 2. Cargar los datos en los inputs del modal
+    document.getElementById('edit_tipo_doc').value = tipoDocId;
+    document.getElementById('edit_num_doc').value = numDoc;
+    document.getElementById('edit_nombre_apellido').value = nombre;
+    document.getElementById('edit_email').value = email;
+    document.getElementById('edit_telefono').value = telefono;
+    document.getElementById('edit_direccion').value = direccion;
+    document.getElementById('edit_status').value = activo ? '1' : '0';
+}
+
+
 </script>
 
 <!-- ===== CSS MEJORADO ===== -->
