@@ -6,3 +6,4 @@ from .provider import proveedores, crear_proveedor, editar_proveedor, eliminar_p
 from .billing import facturas,billing,crear_factura,detalle_factura,anular_factura
 from .users import usuarios, registrar_usuario, editar_usuario ,crear_rol,editar_rol,eliminar_rol
 from .facturas_pdf import generar_factura_pdf
+from .exportar_productos import exportar_productos_excel ,importar_productos_excel

@@ -26,6 +26,8 @@ urlpatterns = [
     path('crear_producto/', views.crear_producto, name="crear_producto"),
     path('editar_producto/<int:id>/', views.editar_producto, name="editar_producto"),
     path('eliminar_producto/<int:id>/', views.eliminar_producto, name='eliminar_producto'),
+    path('productos/exportar/', views.exportar_productos_excel, name='exportar_productos_excel'),
+    path('productos/importar/', views.importar_productos_excel, name='importar_productos_excel'),
     
     #Categoria del producto
     path('crear_categoria/', views.crear_categoria, name="crear_categoria"),
