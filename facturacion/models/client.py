@@ -1,6 +1,6 @@
 from django.db import models
 
-class tipo_documnento(models.Model):
+class TipoDocumento(models.Model):
     tipo = models.CharField(max_length=50)
     
     class Meta:
@@ -10,7 +10,7 @@ class tipo_documnento(models.Model):
         return self.tipo
     
 class Cliente(models.Model):
-    tipo_documento = models.ForeignKey(tipo_documnento, on_delete=models.CASCADE)
+    tipo_documento = models.ForeignKey(TipoDocumento, on_delete=models.PROTECT)
     numero_documento = models.CharField(max_length=20)
     nombre = models.CharField(max_length=100)
     apellidos = models.CharField(max_length=100)

@@ -6,24 +6,37 @@ from django.db import models
 from django.db.models import Sum, Count, Q, F
 from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth import login as auth_login, logout
-
+from django.contrib import messages
 from facturacion.forms import LoginForm
 from facturacion.models import Factura, IngresoStock, Cliente, Producto, Proveedor
 
 
-def login(request):
+def login(request): # Se renombró para evitar sombras con la función auth_login importada
+    # 1. Redirigir si el usuario ya inició sesión previamente
+    if request.user.is_authenticated:
+        return redirect('dashboard_facturacion')
+
     if request.method == 'POST':
         form = LoginForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
             auth_login(request, user)
-            print('Login successful!')
-            return redirect('/dashboard_facturacion')
+            
+            messages.success(request, f'¡Bienvenido de nuevo, {user.username}!')
+            
+            # 2. Respetar la redirección si venía de una página protegida (parámetro ?next=...)
+            next_url = request.GET.get('next') or request.POST.get('next')
+            if next_url:
+                return redirect(next_url)
+            
+            # 3. Redirigir por nombre de vista/URL en lugar de ruta hardcodeada
+            return redirect('dashboard_facturacion')
         else:
-            print("Login failed!")
+            # 4. Mensajes flash en lugar de print() en consola
+            messages.error(request, 'Usuario o contraseña incorrectos. Por favor, intente nuevamente.')
     else:
         form = LoginForm()
-  
+
     context = {'form': form}
     return render(request, 'pages/sign-in.html', context)
 
@@ -50,10 +63,10 @@ def dashboard_facturacion(request):
     ventas_ayer = ventas_ayer_query['total'] or 0.0
 
     # Porcentaje de cambio en ventas diarias
-    if ventas_ayer > 0:
-        porcentaje_ventas = round(((ventas_hoy - ventas_ayer) / ventas_ayer) * 100, 1)
-    else:
-        porcentaje_ventas = 100.0 if ventas_hoy > 0 else 0.0
+    # if ventas_ayer > 0:
+    #     porcentaje_ventas = round(((ventas_hoy - ventas_ayer) / ventas_ayer) * 100, 1)
+    # else:
+    #     porcentaje_ventas = 100.0 if ventas_hoy > 0 else 0.0
 
     # Por Cobrar (Pendientes)
     cuentas_por_cobrar = Factura.objects.filter(estado='PENDIENTE').aggregate(
@@ -106,7 +119,7 @@ def dashboard_facturacion(request):
         'today': today,
         'selected_year': selected_year,
         'ventas_hoy': ventas_hoy,
-        'porcentaje_ventas': porcentaje_ventas,
+        # 'porcentaje_ventas': porcentaje_ventas,
         'por_cobrar': por_cobrar,
         'facturas_pendientes': facturas_pendientes,
         'facturas_mes': facturas_mes,
