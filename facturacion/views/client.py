@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect,get_object_or_404
-from facturacion.models import Cliente, tipo_documnento
+from facturacion.models import Cliente, TipoDocumento
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 
@@ -12,7 +12,7 @@ def clientes(request):
         ultimo_registro = clientes.latest('fecha_registro')
     else:
         ultimo_registro = None
-    tipo = tipo_documnento.objects.all()
+    tipo = TipoDocumento.objects.all()
     context = {
         'segment': 'clientes',
         'clientes': clientes,

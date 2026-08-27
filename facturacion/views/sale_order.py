@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from facturacion.models import Producto, tipo_documnento,Cliente
+from facturacion.models import Producto,TipoDocumento,Cliente
 from django.db import transaction
 from decimal import Decimal
 from django.contrib.auth.decorators import login_required, permission_required
@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 def nueva_venta(request):
     productos_disponibles = Producto.objects.filter(activo=True, stock__gt=0)
     clientes = Cliente.objects.all()
-    tipo = tipo_documnento.objects.all()
+    tipo = TipoDocumento.objects.all()
     context = {
         'segment': 'nueva_venta',
         'productos': productos_disponibles,
