@@ -59,7 +59,7 @@ def nueva_venta(request):
                     producto.stock -= cantidad_vendida
                     producto.save()
 
-                    # Precio unitario obtenido del modelo (evita manipulación en frontend)
+                    
                     precio_unitario = producto.precio_venta
                     subtotal_linea = precio_unitario * cantidad_vendida
 
@@ -98,7 +98,7 @@ def nueva_venta(request):
             messages.error(request, f"Error al procesar la venta: {str(e)}")
             return redirect('nueva_venta')
 
-    # Método GET: Muestra la interfaz gráfica
+    
     productos_disponibles = Producto.objects.filter(activo=True, stock__gt=0)
     clientes = Cliente.objects.all()
     tipo = TipoDocumento.objects.all()
