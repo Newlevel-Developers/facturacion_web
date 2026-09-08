@@ -8,7 +8,7 @@ from faker import Faker
 
 # Importa tus modelos de acuerdo a la ubicación real en tu proyecto
 from facturacion.models import (
-    tipo_documnento,
+    TipoDocumento,
     Cliente,
     Categoria,
     Producto,
@@ -80,7 +80,7 @@ class Command(BaseCommand):
         tipos_doc_nombres = ["DNI", "RUC", "Pasaporte", "Cedula de Ciudadania"]
         tipos_doc_objs = []
         for tipo in tipos_doc_nombres:
-            doc, _ = tipo_documnento.objects.get_or_create(tipo=tipo)
+            doc, _ = TipoDocumento.objects.get_or_create(tipo=tipo)
             tipos_doc_objs.append(doc)
 
         # ----------------------------------------------------
