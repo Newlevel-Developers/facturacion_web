@@ -22,21 +22,27 @@
             </div>
           </div>
 
-          <!-- Selección múltiple de Permisos -->
-          <div class="row">
+          <!-- Selección múltiple de Permisos con Checkboxes -->
+          <div class="row mb-3">
             <div class="col-md-12">
-              <div class="input-group input-group-static mb-3">
-                <label class="ms-0">Asignar Permisos al Rol</label>
-                <select class="form-control" name="permissions" multiple style="height: 180px;">
-                  {% for perm in permisos %}
-                    <option value="{{ perm.id }}">
-                      [{{ perm.content_type.app_label|title }}] {{ perm.name }}
-                    </option>
-                  {% endfor %}
-                </select>
+              <label class="form-label font-weight-bold mb-2">Asignar Permisos al Rol</label>
+              
+              <!-- Contenedor scrollable para la lista de permisos -->
+              <div class="border rounded p-3" style="max-height: 250px; overflow-y: auto;">
+                {% for perm in permisos %}
+                  <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" name="permissions" value="{{ perm.id }}" id="create_perm_{{ perm.id }}">
+                    <label class="form-check-label text-sm ms-2 mb-0" for="create_perm_{{ perm.id }}">
+                      <span class="badge bg-gradient-secondary me-1">[{{ perm.content_type.app_label|title }}]</span> 
+                      {{ perm.name }}
+                    </label>
+                  </div>
+                {% empty %}
+                  <p class="text-sm text-muted mb-0">No hay permisos disponibles.</p>
+                {% endfor %}
               </div>
-              <small class="text-muted d-block mt-0 mb-3">
-                <i class="fas fa-info-circle me-1"></i>Mantén presionado <kbd>Ctrl</kbd> (o <kbd>Cmd</kbd> en Mac) para seleccionar o deseleccionar varios permisos.
+              <small class="text-muted d-block mt-2">
+                <i class="fas fa-info-circle me-1"></i>Marca las casillas correspondientes a los permisos que deseas asignar a este rol.
               </small>
             </div>
           </div>
@@ -89,21 +95,27 @@
             </div>
           </div>
 
-          <!-- Selección múltiple de Permisos para Edición -->
-          <div class="row">
+          <!-- Selección múltiple de Permisos para Edición con Checkboxes -->
+          <div class="row mb-3">
             <div class="col-md-12">
-              <div class="input-group input-group-static mb-3">
-                <label class="ms-0">Actualizar Permisos del Rol</label>
-                <select class="form-control" name="permissions" multiple style="height: 180px;">
-                  {% for perm in permisos %}
-                    <option value="{{ perm.id }}">
-                      [{{ perm.content_type.app_label|title }}] {{ perm.name }}
-                    </option>
-                  {% endfor %}
-                </select>
+              <label class="form-label font-weight-bold mb-2">Actualizar Permisos del Rol</label>
+
+              <!-- Contenedor scrollable para los permisos -->
+              <div class="border rounded p-3" style="max-height: 250px; overflow-y: auto;">
+                {% for perm in permisos %}
+                  <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" name="permissions" value="{{ perm.id }}" id="edit_perm_{{ perm.id }}">
+                    <label class="form-check-label text-sm ms-2 mb-0" for="edit_perm_{{ perm.id }}">
+                      <span class="badge bg-gradient-secondary me-1">[{{ perm.content_type.app_label|title }}]</span> 
+                      {{ perm.name }}
+                    </label>
+                  </div>
+                {% empty %}
+                  <p class="text-sm text-muted mb-0">No hay permisos disponibles.</p>
+                {% endfor %}
               </div>
-              <small class="text-muted d-block mt-0 mb-3">
-                <i class="fas fa-info-circle me-1"></i>Los permisos seleccionados reemplazarán la lista actual del rol. Mantén presionado <kbd>Ctrl</kbd> o <kbd>Cmd</kbd> para selección múltiple.
+              <small class="text-muted d-block mt-2">
+                <i class="fas fa-info-circle me-1"></i>Los permisos marcados reemplazarán la lista actual del rol.
               </small>
             </div>
           </div>
