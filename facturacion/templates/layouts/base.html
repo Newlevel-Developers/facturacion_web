@@ -25,10 +25,12 @@
 
     {% block content %}{% endblock content %}
   </main>
-  
+  {% comment %}
   {% block configurator %}
     {% include "includes/configurator.html" %}
   {% endblock configurator %}
+  {% endcomment %}
+
 
   {% include "includes/scripts.html" %}
 
