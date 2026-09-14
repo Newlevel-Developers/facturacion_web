@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from decimal import Decimal
 
 from facturacion.models import Producto, TipoDocumento, Cliente, Factura, DetalleFactura
+from facturacion.models.ingesroStock import IngresoStock
 
 @login_required
 @permission_required('facturacion.sele_order', raise_exception=True)
@@ -112,27 +113,38 @@ def nueva_venta(request):
     return render(request, 'pages/ventas.html', context)
 
 
-@permission_required('facturacion.sele_order', raise_exception=True)
+@login_required
 def registrar_compra(request):
     if request.method == 'POST':
         producto_id = request.POST.get('producto_id')
-        cantidad_comprada = int(request.POST.get('cantidad', 0))
+        proveedor_id = request.POST.get('proveedor_id')
+        cantidad = int(request.POST.get('cantidad', 0))
         costo_unitario = Decimal(request.POST.get('precio_compra', '0.00'))
+        condicion_pago = request.POST.get('condicion_pago', 'PAGADO') # 'PAGADO' o 'PENDIENTE'
 
         try:
             with transaction.atomic():
                 producto = Producto.objects.select_for_update().get(id=producto_id)
                 
-                # Actualizamos el stock (Trazabilidad de entrada)
-                producto.stock += cantidad_comprada
-                
-                # Actualizamos el precio de compra
+                # 1. Incrementar Stock
+                producto.stock += cantidad
                 producto.precio_compra = costo_unitario
                 producto.save()
                 
-                messages.success(request, f"Stock actualizado para {producto.nombre} (+{cantidad_comprada}).")
-                
-            return redirect('/productos')
+                # 2. Registrar la entrada en IngresoStock
+                monto_total = cantidad * costo_unitario
+                IngresoStock.objects.create(
+                    producto=producto,
+                    proveedor_id=proveedor_id,
+                    usuario=request.user,
+                    cantidad=cantidad,
+                    precio_compra=costo_unitario,
+                    monto_total=monto_total,
+                    estado=condicion_pago
+                )
+
+                messages.success(request, f"Stock e Ingreso de compra registrados correctamente.")
+            return redirect('productos')
         except Exception as e:
             messages.error(request, f"Error en compra: {str(e)}")
-            return redirect('/index')
+            return redirect('productos')

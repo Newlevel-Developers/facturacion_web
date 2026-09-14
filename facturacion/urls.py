@@ -42,6 +42,7 @@ urlpatterns = [
     
     #Proveedor
     path('proveedores/', views.proveedores, name='proveedores'),
+    path('cuentas_por_pagar/', views.cuentas_por_pagar, name='cuentas_por_pagar'),
     path('proveedores/crear/', views.crear_proveedor, name='crear_proveedor'),
     path('proveedores/editar/<int:id>/', views.editar_proveedor, name='editar_proveedor'),
     path('proveedores/eliminar/<int:id>/', views.eliminar_proveedor, name='eliminar_proveedor'),
