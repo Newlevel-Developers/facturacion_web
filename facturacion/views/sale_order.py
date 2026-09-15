@@ -3,18 +3,23 @@ from django.db import transaction
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from decimal import Decimal
-
+from .bcv import obtener_dolar_bcv
 from facturacion.models import Producto, TipoDocumento, Cliente, Factura, DetalleFactura
+from facturacion.models.ingesroStock import IngresoStock
 
 @login_required
 @permission_required('facturacion.sele_order', raise_exception=True)
 def nueva_venta(request):
+    try:
+        tasa_dolar = obtener_dolar_bcv() or Decimal('1.00')
+    except Exception as e:
+        tasa_dolar = Decimal('1.00')
+        messages.error(request, "Error al obtener la tasa del dólar. Se ha utilizado una tasa por defecto.")
     if request.method == 'POST':
         # 1. Captura de datos del cliente y forma de pago
         cliente_id = request.POST.get('cliente')
         metodo_pago = request.POST.get('metodo_pago')
         observaciones_credito = request.POST.get('observaciones_credito', '')
-        
         # Listas de productos recibidas de la tabla dinámica
         productos_ids = request.POST.getlist('producto_id[]')
         cantidades = request.POST.getlist('cantidad[]')
@@ -107,32 +112,44 @@ def nueva_venta(request):
         'segment': 'nueva_venta',
         'productos': productos_disponibles,
         'clientes': clientes,
-        'tipos_documento': tipo
+        'tipos_documento': tipo,
+        'tasa_dolar': tasa_dolar
     }
     return render(request, 'pages/ventas.html', context)
 
 
-@permission_required('facturacion.sele_order', raise_exception=True)
+@login_required
 def registrar_compra(request):
     if request.method == 'POST':
         producto_id = request.POST.get('producto_id')
-        cantidad_comprada = int(request.POST.get('cantidad', 0))
+        proveedor_id = request.POST.get('proveedor_id')
+        cantidad = int(request.POST.get('cantidad', 0))
         costo_unitario = Decimal(request.POST.get('precio_compra', '0.00'))
+        condicion_pago = request.POST.get('condicion_pago', 'PAGADO') # 'PAGADO' o 'PENDIENTE'
 
         try:
             with transaction.atomic():
                 producto = Producto.objects.select_for_update().get(id=producto_id)
                 
-                # Actualizamos el stock (Trazabilidad de entrada)
-                producto.stock += cantidad_comprada
-                
-                # Actualizamos el precio de compra
+                # 1. Incrementar Stock
+                producto.stock += cantidad
                 producto.precio_compra = costo_unitario
                 producto.save()
                 
-                messages.success(request, f"Stock actualizado para {producto.nombre} (+{cantidad_comprada}).")
-                
-            return redirect('/productos')
+                # 2. Registrar la entrada en IngresoStock
+                monto_total = cantidad * costo_unitario
+                IngresoStock.objects.create(
+                    producto=producto,
+                    proveedor_id=proveedor_id,
+                    usuario=request.user,
+                    cantidad=cantidad,
+                    precio_compra=costo_unitario,
+                    monto_total=monto_total,
+                    estado=condicion_pago
+                )
+
+                messages.success(request, f"Stock e Ingreso de compra registrados correctamente.")
+            return redirect('productos')
         except Exception as e:
             messages.error(request, f"Error en compra: {str(e)}")
-            return redirect('/index')
+            return redirect('productos')

@@ -34,19 +34,19 @@ document.addEventListener('DOMContentLoaded', function() {
     // ===================== TASA DE CAMBIO (BCV) =====================
     let tasaCambio = 0;
 
-    async function obtenerTasaBCV() {
+    function obtenerTasaBCV() {
         try {
-            //Simulación - en producción llamar a una API real
-            const response = await fetch('https://api.bcv.org.ve/api/tasa');
-            const data = await response.json();
-            tasaCambio = data.tasa;
-            
-            // Simulación con valor fijo (reemplazar con API real)
-            //tasaCambio = 36.50; // Valor de ejemplo
+            const scriptData = document.getElementById('tasa-dolar-data');
+            if (scriptData) {
+                // JSON.parse convierte la etiqueta directamente al número/objeto enviado por Django
+                tasaCambio = parseFloat(JSON.parse(scriptData.textContent)) || 36.50;
+            } else {
+                tasaCambio = 36.50;
+            }
             actualizarTasas();
         } catch (error) {
-            console.error('Error al obtener la tasa BCV:', error);
-            tasaCambio = 36.50; // Valor por defecto
+            console.error('Error al parsear la tasa BCV:', error);
+            tasaCambio = 36.50; // Valor de respaldo (fallback)
             actualizarTasas();
         }
     }
@@ -54,7 +54,12 @@ document.addEventListener('DOMContentLoaded', function() {
     function actualizarTasas() {
         document.getElementById('tasa-usd-header').textContent = '1.00';
         document.getElementById('tasa-bs-header').textContent = tasaCambio.toFixed(2);
-        tasaBcv.textContent = `1 USD = ${tasaCambio.toFixed(2)} Bs`;
+        
+        const tasaBcv = document.getElementById('tasaBcv'); // Asegúrate de seleccionar el elemento si no existe globalmente
+        if (tasaBcv) {
+            tasaBcv.textContent = `1 USD = ${tasaCambio.toFixed(2)} Bs`;
+        }
+        
         calcularTotalesGenerales();
     }
 
@@ -288,6 +293,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const totalBsValue = totalFinal * tasaCambio;
         totalGeneralBs.textContent = `Bs ${totalBsValue.toFixed(2)}`;
         totalBs.textContent = `Bs ${totalBsValue.toFixed(2)}`;
+
+        //convertir a dolares
+        const totalDolares = totalFinal;
+        document.getElementById('total-dolares').textContent = `$ ${totalDolares.toFixed(2)}`;
 
         document.getElementById('resumen-productos').textContent = totalProductos;
         document.getElementById('resumen-items').textContent = totalItems;

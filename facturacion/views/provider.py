@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from facturacion.models import Proveedor
+from facturacion.models.ingesroStock import IngresoStock
+from facturacion.models.payment import MetodoPago
 
 # ==========================================
 # 1. LISTAR PROVEEDORES (READ)
@@ -121,3 +123,58 @@ def eliminar_proveedor(request, id):
         return redirect('proveedores')
 
     return redirect('proveedores')
+
+
+
+@login_required
+def registrar_pago_proveedor(request, ingreso_id):
+    ingreso = get_object_or_404(IngresoStock, id=ingreso_id)
+
+    if request.method == 'POST':
+        metodo_id = request.POST.get('metodo_pago')
+        monto = Decimal(request.POST.get('monto', '0.00'))
+        referencia = request.POST.get('referencia', '')
+        observaciones = request.POST.get('observaciones', '')
+
+        if monto <= 0:
+            messages.error(request, "El monto a pagar debe ser mayor a 0.")
+            return redirect('cuentas_por_pagar')
+
+        try:
+            with transaction.atomic():
+                # 1. Registrar el pago
+                metodo = MetodoPago.objects.get(id=metodo_id)
+                PagoProveedor.objects.create(
+                    ingreso=ingreso,
+                    metodo_pago=metodo,
+                    monto=monto,
+                    referencia=referencia,
+                    observaciones=observaciones
+                )
+
+                # 2. Verificar total pagado acumulado
+                pagos_totales = sum(pago.monto for pago in ingreso.pagos_proveedor.all())
+
+                if pagos_totales >= ingreso.monto_total:
+                    ingreso.estado = 'PAGADO'
+                    ingreso.save()
+
+                messages.success(request, f"Pago de {monto} registrado exitosamente para la compra #{ingreso.id}.")
+
+        except Exception as e:
+            messages.error(request, f"Error al procesar el pago: {str(e)}")
+
+    return redirect('cuentas_por_pagar')
+
+
+@login_required
+def cuentas_por_pagar(request):
+    compras_pendientes = IngresoStock.objects.filter(estado='PENDIENTE').order_by('-fecha_ingreso')
+    metodos_pago = MetodoPago.objects.filter(activo=True)
+
+    context = {
+        'segment': 'cuentas_por_pagar',
+        'compras': compras_pendientes,
+        'metodos_pago': metodos_pago,
+    }
+    return render(request, 'proveedor/cuentas_por_pagar.html', context)
