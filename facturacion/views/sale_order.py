@@ -3,19 +3,23 @@ from django.db import transaction
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from decimal import Decimal
-
+from .bcv import obtener_dolar_bcv
 from facturacion.models import Producto, TipoDocumento, Cliente, Factura, DetalleFactura
 from facturacion.models.ingesroStock import IngresoStock
 
 @login_required
 @permission_required('facturacion.sele_order', raise_exception=True)
 def nueva_venta(request):
+    try:
+        tasa_dolar = obtener_dolar_bcv() or Decimal('1.00')
+    except Exception as e:
+        tasa_dolar = Decimal('1.00')
+        messages.error(request, "Error al obtener la tasa del dólar. Se ha utilizado una tasa por defecto.")
     if request.method == 'POST':
         # 1. Captura de datos del cliente y forma de pago
         cliente_id = request.POST.get('cliente')
         metodo_pago = request.POST.get('metodo_pago')
         observaciones_credito = request.POST.get('observaciones_credito', '')
-        
         # Listas de productos recibidas de la tabla dinámica
         productos_ids = request.POST.getlist('producto_id[]')
         cantidades = request.POST.getlist('cantidad[]')
@@ -108,7 +112,8 @@ def nueva_venta(request):
         'segment': 'nueva_venta',
         'productos': productos_disponibles,
         'clientes': clientes,
-        'tipos_documento': tipo
+        'tipos_documento': tipo,
+        'tasa_dolar': tasa_dolar
     }
     return render(request, 'pages/ventas.html', context)
 
