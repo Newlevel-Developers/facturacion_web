@@ -9,7 +9,7 @@ from django.contrib.auth import login as auth_login, logout
 from django.contrib import messages
 from facturacion.forms import LoginForm
 from facturacion.models import Factura, IngresoStock, Cliente, Producto, Proveedor
-
+from django.contrib.auth.decorators import login_required
 
 def login(request): # Se renombró para evitar sombras con la función auth_login importada
     # 1. Redirigir si el usuario ya inició sesión previamente
@@ -40,7 +40,7 @@ def login(request): # Se renombró para evitar sombras con la función auth_logi
     context = {'form': form}
     return render(request, 'pages/sign-in.html', context)
 
-
+@login_required
 def dashboard_facturacion(request):
     today = timezone.now().date()
     inicio_mes = today.replace(day=1)
