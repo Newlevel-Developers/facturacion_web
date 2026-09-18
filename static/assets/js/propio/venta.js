@@ -244,6 +244,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const precioVisual = row.querySelector('.precio-visual');
         const precioVisualBolivares = row.querySelector('.precio-visual-bs');
         const subtotalVisual = row.querySelector('.subtotal-visual');
+        const subtotalVisualBolivares = row.querySelector('.subtotal-visual-bs');
         const stockIndicator = row.querySelector('.stock-indicator');
 
         if (!select) return;
@@ -273,7 +274,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const subtotal = precio * cantidad;
         if (subtotalVisual) subtotalVisual.value = `$ ${subtotal.toFixed(2)}`;
-
+        if (subtotalVisualBolivares) subtotalVisualBolivares.value = `Bs ${(subtotal * tasaCambio).toFixed(2)}`;
         calcularTotalesGenerales();
     }
 
@@ -325,6 +326,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const elResumenSubtotal = document.getElementById('resumen-subtotal');
         if (elResumenSubtotal) elResumenSubtotal.textContent = `$ ${subtotal.toFixed(2)}`;
+
+        const elResumenSubtotalBs = document.getElementById('resumen-subtotal-bs');
+        if (elResumenSubtotalBs) elResumenSubtotalBs.textContent = `Bs ${(subtotal * tasaCambio).toFixed(2)}`;
 
         const elProductCount = document.getElementById('product-count');
         if (elProductCount) elProductCount.textContent = `${totalProductos} productos`;
